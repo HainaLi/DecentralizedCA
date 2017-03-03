@@ -12,8 +12,6 @@ Our  members are [Bargav Jayaraman(insertlink)](blank) and [Hannah Li](https://g
 
 ### Relevant Sources
 
-- List
-
 1. [High-Throughput Semi-Honest Secure Three-Party Computation with an Honest Majority](https://eprint.iacr.org/2016/768.pdf)
 
 <!--
