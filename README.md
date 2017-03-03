@@ -1,7 +1,20 @@
 ## Welcome to our project on decentralized certificate authority
 
 Our  members are [Bargav Jayaraman(insertlink)](blank) and [Hannah Li](https://github.com/HainaLi/)
+
 (Add team name)
+
+
+### Motivation Paragraph
+
+### Plan for the project
+
+
+### Relevant Sources
+
+- List
+
+1. [High-Throughput Semi-Honest Secure Three-Party Computation with an Honest Majority](https://eprint.iacr.org/2016/768.pdf)
 
 <!--
 You can use the [editor on GitHub](https://github.com/HainaLi/DecentralizedCA/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
