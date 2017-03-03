@@ -1,6 +1,6 @@
 ## Welcome to our project on decentralized certificate authority
 
-Our  members are [Bargav Jayaraman(insertlink)](blank) and [Hannah Li](https://github.com/HainaLi/)
+Our  members are [Bargav Jayaraman](https://github.com/bargavjayaraman) and [Hannah Li](https://github.com/HainaLi/)
 
 (Add team name)
 
