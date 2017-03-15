@@ -27,8 +27,8 @@ We will use [Cloudflare's CFSSL](https://github.com/cloudflare/cfssl) open-sourc
 
 ## Resources
 
-[Cloudflare's CFSSL](https://github.com/cloudflare/cfssl)
+[Cloudflare's CFSSL](https://github.com/cloudflare/cfssl): Cloudflare's PKI toolkit to generate certificates and instantiate CA
 
-[OpenSSL](https://github.com/openssl/openssl)
+[OpenSSL](https://github.com/openssl/openssl): OpenSSL toolkit to generate certificates and instantiate CA 
 
-[Obliv-C](http://oblivc.org)
+[Obliv-C](http://oblivc.org): Framework based on C for implementing multi-party computation (MPC)
