@@ -2,10 +2,8 @@
 
 Our  members are [Bargav Jayaraman](https://github.com/bargavjayaraman) and [Hannah Li](https://github.com/HainaLi/)
 
-(Add team name)
 
-
-### Motivation Paragraph
+### Motivation
 
 [Roosa and Schultze](http://ieeexplore.ieee.org/document/6451080/) discuss about various recent high-profile attacks on certificate authorities where the attacker either takes control of the CA or colludes to generate malicious certificates trusted by a client's browser. The authors particularly note the attacks on two trusted certificate authorities: [Comodo](https://freedom-to-tinker.com/2011/03/23/web-browsers-and-comodo-disclose-successful-certificate-authority-attack-perhaps-iran/) and [DigiNotar](http://freedom-to-tinker.com/2011/09/06/diginotar-hack-highlights-critical-failures-our-ssl-web-security-model/). The attack on Comodo's registration authority (RA) allowed the hacker to get hold of domain validation (DV) certificate of Google. In the case of DigiNotar, the hacker was able to obtain several extended validation (EV) certificates from a subCA of DigiNotar. EV certificates provide access to high security HTTPS websites, and hence their leakage is more serious compared to the leakage of DV certificates.
 
@@ -13,7 +11,7 @@ The above attacks are possible due to single point-of-failure where the certific
 We propose a decentralized certificate authority consisting of multiple CAs (or multiple CA machines within a CA organization) which provides a security enhancement to the creation of certificates and key signing.
 
 
-### Plan for the project
+### Plan of Action
 
 We will use [Cloudflare's CFSSL](https://github.com/cloudflare/cfssl) open-source public key infrastructure (PKI) toolkit to instantiate our decentralized CA and use multi-party computation protocol for collaborative certificate generation within the decentralized CA. For our multi-party computation, we utilize the [Obliv-C](http://oblivc.org) framework that includes the latest enhancements ([Zahur et al.](https://eprint.iacr.org/2014/756.pdf) and [huang et al.](https://www.cs.umd.edu/~jkatz/papers/SP12.pdf)) to the [garbled circuits](http://ieeexplore.ieee.org/document/4568207/). This allows us to ensure privacy in the presence of malicious adversaries, i.e. when one of the CA machine deviates from the certificate generation protocol.
 
