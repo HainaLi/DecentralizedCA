@@ -25,3 +25,10 @@ We will use [Cloudflare's CFSSL](https://github.com/cloudflare/cfssl) open-sourc
   Decentralizing or distributing a certificate authority across many nodes is an idea first introduced by [Zhou and Haas](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=806983) in 1999 when tackling the problem of providing security for ad hoc, mobile networks where hosts relied on each other to keep the network connected. This work proposed spreading the functionality of a single certificate authority to a set of nodes using [Shamir's secret sharing](https://cs.jhu.edu/~sdoshi/crypto/papers/shamirturing.pdf) and treshold cryptography. Later, researchers such as [Dong et al.](http://ac.els-cdn.com/S0140366407001673/1-s2.0-S0140366407001673-main.pdf?_tid=18d2c35e-0811-11e7-8a8e-00000aab0f26&acdnat=1489425698_08801bf940f34f59da45353ffe7cd27d)  and [Seno et al.](http://www.sciencedirect.com/science/article/pii/S0140366407001673) built upon this idea and provided practical deployment solutions. Though we do not consider mobile ad hoc networks, we attempt to solve the same problem through secure multi-party computation. 
 
 
+## Resources
+
+[Cloudflare's CFSSL](https://github.com/cloudflare/cfssl)
+
+[OpenSSL](https://github.com/openssl/openssl)
+
+[Obliv-C](http://oblivc.org)
