@@ -22,7 +22,7 @@ Generating Standard Elliptic Curve for ECDSA library: (Hannah)
 
 MPC protocol for ECDSA based Certificate Signing: (Bargav)
 1. Both CA machines combine their pseudo-random private key shares inside the MPC protocol to obtain the master private key (not revealed to either of the parties) that is used in ECDSA for certificate signing. 
-2. Next we perform the certificate signing with the private key and curve parameters obtained above (via steps 1-7 of [Certificate Signing Algorithm](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)) inside the MPC protocol.
+2. Next we perform the certificate signing with the private key and the curve parameters obtained above inside the MPC protocol (via steps 1-7 of [Certificate Signing Algorithm](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)).
 3. At the end of the protocol, the signed cirtificate and the public key are revealed to both the parties.
 
 
