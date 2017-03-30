@@ -4,24 +4,30 @@ Our  members are [Bargav Jayaraman](https://github.com/bargavjayaraman) and [Han
 ## 3/30/2017
 
 ## Motivation
-Currently, certificate authorities (CAs) store and sign certificates on one machine where the private key could easily be stolen. We propose a new model where multiple machines owned by a CA hold shares to the signing key and jointly signs its certificate so that the compromise of a single party does not enable an attacker to steal an all-powerful private key. 
+Currently, certificate authorities (CAs) store and sign certificates on one machine where the private key could easily be stolen. We propose a new model where multiple machines owned by a CA hold shares to the signing key and jointly sign the certificate so that the compromise of a single party does not enable an attacker to steal an all-powerful private key. 
 
 This model could be later expanded to involve multiple separate CAs. In addition to reaping the benefits of decentralizing the storage of the private key, the division of power could also reduce mistakes commonly made in the certificate approval process. 
 
 ## Goal for the Semester
-Our goal for the next month is to implement certificate authority (CA) private key generation and certificate signing (via ECDSA) using the 2-party multi-party computation protocol described in [Yao's Garbled Circuit](http://dl.acm.org/citation.cfm?id=1382944)(Bargav, OblivC doesn't just use yao's garbled circuit, as I recall.). We assume that the two CAs each hold its own private key, and that they have agreed on a single certificate, public key, and set of elliptic curve parameters. The finished MPC implementation should output a signed certificate without revealling any information about the private keys.  
+Our goal for the next month is to implement certificate authority (CA) private key generation and certificate signing (via ECDSA) using the two-party computation protocol described in [Yao's Garbled Circuit](http://dl.acm.org/citation.cfm?id=1382944). We assume that the two CA machines hold private key shares, and that they have agreed on a single certificate and set of elliptic curve parameters. The finished MPC implementation should output a signed certificate and the public key without revealing any information about the private key shares. This considers the honest-but-curious model of adversary where the CA machines do not deviate from the protocol.
 
 ## Plan
 
-Our plan is to implement the private key generation and certificate signing using the [Obliv-C](https://oblivc.org/). Specifically, we will add an ECDSA library to the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview) project, which already has big integer math and hash function features developed. 
+Our plan is to implement the private key generation and certificate signing using the [Obliv-C](https://oblivc.org/) framework which is based on Yao's GC protocol and has the state-of-art enhancements. Specifically, we will add an ECDSA library to the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview) project, which already has big integer math and cryptographic hash function features developed.
 
-(who wil be responsible for what?)
-1. Both CAs generate a private key and submits them to the MPC. 
-2. The MPC will XOR the private keys to obtain a master private key that is used in ECDSA calculations. 
-(Bargav, continue)
+Generating [Standard Elliptic Curve](http://www.secg.org/sec2-v2.pdf) for ECDSA library:
+1. SEC recommends a set of standard elliptic curves defined by a sextuple of parameters (p,a,b,G,n,h). Here 'p' specifies the finite field F_p. 'a' and 'b' are the coefficients of the elliptic curve y^2 = x^3 + ax^2 + b. 'G' is the base point or generator of the curve. 'n' is the order of 'G' and 'h' is the cofactor of the sub-group such that n*h gives the number of curve points in the finite field F_p. 
+2. The parameters are written in octet-string format and hence are required to be converted to usable format (for example, G has to be represented as a curve point format (x,y)).
+3. Next all the parameters are to be represented in big int format which is compatible with MPC protocol in Obliv-C.
+
+MPC protocol for ECDSA based Certificate Signing:
+1. Both CA machines combine their pseudo-random private key shares inside the MPC protocol to obtain the master private key (not revealed to either of the parties) that is used in ECDSA for certificate signing. 
+2. Next we perform the certificate signing with the private key (via steps 1-7 of [Certificate Signing](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)) inside the MPC protocol.
+3. At the end of the protocol, the signed cirtificate and the public key are revealed to both the parties.
+
 
 ### Prior ECDSA Implementations
-We have attempted to compile GCC libraries [libgcrypt](https://gnupg.org/software/libgcrypt/index.html), [libgmp](https://gmplib.org/), [openSSL](https://www.openssl.org/) directly with Obliv-C because they offered important big number arithmetic and crypto algorithmic functionalities. After running into compiler compatibility issues, we decided to write our ECDSA algorithm from scratch using important features from the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview), as described above. 
+We have attempted to compile GCC libraries [libgcrypt](https://gnupg.org/software/libgcrypt/index.html), [libgmp](https://gmplib.org/), [openSSL](https://www.openssl.org/) directly with Obliv-C because they offered important big number arithmetic and crypto algorithmic functionalities. After running into compiler compatibility issues, we decided to write our own ECDSA implementation from scratch using important features from the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview), as described above. 
 
 We will use straightforward ECDSA and ECDH implementations such as [SimpleECDSA](https://github.com/sowbug/SimpleECDSA) and [curve25519](https://github.com/agl/curve25519-donna/) as references. 
 
