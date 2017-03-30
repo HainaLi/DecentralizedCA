@@ -1,7 +1,31 @@
 ## Welcome to our project on decentralized certificate authority
 
 Our  members are [Bargav Jayaraman](https://github.com/bargavjayaraman) and [Hannah Li](https://github.com/HainaLi/)
+## 3/30/2017
 
+## Motivation
+Currently, certificate authorities (CAs) store and sign certificates on one machine where the private key could easily be stolen. We propose a new model where multiple machines owned by a CA hold shares to the signing key and jointly signs its certificate so that the compromise of a single party does not enable an attacker to steal an all-powerful private key. 
+
+This model could be later expanded to involve multiple separate CAs. In addition to reaping the benefits of decentralizing the storage of the private key, the division of power could also reduce mistakes commonly made in the certificate approval process. 
+
+## Goal for the Semester
+Our goal for the next month is to implement certificate authority (CA) private key generation and certificate signing (via ECDSA) using the 2-party multi-party computation protocol described in [Yao's Garbled Circuit](http://dl.acm.org/citation.cfm?id=1382944)(Bargav, OblivC doesn't just use yao's garbled circuit, as I recall.). We assume that the two CAs each hold its own private key, and that they have agreed on a single certificate, public key, and set of elliptic curve parameters. The finished MPC implementation should output a signed certificate without revealling any information about the private keys.  
+
+## Plan
+
+Our plan is to implement the private key generation and certificate signing using the [Obliv-C](https://oblivc.org/). Specifically, we will add an ECDSA library to the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview) project, which already has big integer math and hash function features developed. 
+
+(who wil be responsible for what?)
+1. Both CAs generate a private key and submits them to the MPC. 
+2. The MPC will XOR the private keys to obtain a master private key that is used in ECDSA calculations. 
+(Bargav, continue)
+
+### Prior ECDSA Implementations
+We have attempted to compile GCC libraries [libgcrypt](https://gnupg.org/software/libgcrypt/index.html), [libgmp](https://gmplib.org/), [openSSL](https://www.openssl.org/) directly with Obliv-C because they offered important big number arithmetic and crypto algorithmic functionalities. After running into compiler compatibility issues, we decided to write our ECDSA algorithm from scratch using important features from the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview), as described above. 
+
+We will use straightforward ECDSA and ECDH implementations such as [SimpleECDSA](https://github.com/sowbug/SimpleECDSA) and [curve25519](https://github.com/agl/curve25519-donna/) as references. 
+
+## 3/15/2017
 
 ## Motivation
 Modern Internet users heavily rely on HTTPS to provide a trusted, secure channel to communicate sensitive information. Among the many points of failure possible in the SSL/TLS mechanism, we focus on weaknesses in the certificate generation process. 
