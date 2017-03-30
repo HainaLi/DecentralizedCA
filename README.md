@@ -17,7 +17,7 @@ Our plan is to implement the private key generation and certificate signing usin
 
 Generating Standard Elliptic Curve for ECDSA library: (Hannah)
 1. [SEC-2](http://www.secg.org/sec2-v2.pdf) recommends a set of standard elliptic curves defined by a sextuple of parameters (p,a,b,G,n,h). Here 'p' specifies the finite field F_p. 'a' and 'b' are the coefficients of the elliptic curve y^2 = x^3 + ax^2 + b. 'G' is the base point or generator of the curve. 'n' is the order of 'G' and 'h' is the cofactor of the sub-group such that n*h gives the number of curve points in the finite field F_p. 
-2. The parameters are written in octet-string format and hence are required to be converted to usable format (for example, 'G' has to be represented as a curve point format (x,y)) using the procedure mentioned in [SEC-1](http://www.secg.org/sec1-v2.pdf).
+2. The parameters are written in octet-string format and hence are required to be converted to usable format (for example, 'G' has to be represented in a curve point format (x,y)) using the procedure mentioned in [SEC-1](http://www.secg.org/sec1-v2.pdf).
 3. Next all the parameters are to be represented in big int format which is compatible with MPC protocol in Obliv-C.
 
 MPC protocol for ECDSA based Certificate Signing: (Bargav)
