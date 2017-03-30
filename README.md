@@ -13,16 +13,16 @@ Our goal for the next month is to implement certificate authority (CA) private k
 
 ## Plan
 
-Our plan is to implement the private key generation and certificate signing using the [Obliv-C](https://oblivc.org/) framework which is based on Yao's GC protocol and has the state-of-art enhancements. Specifically, we will add an ECDSA library to the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview) project, which already has big integer math and cryptographic hash function features developed.
+Our plan is to implement the private key generation and certificate signing using the [Obliv-C](https://oblivc.org/) framework which is based on Yao's GC protocol and has the state-of-art efficiency enhancements. Specifically, we will add an ECDSA library to the [Absentminded Crypto Kit](https://bitbucket.org/jackdoerner/absentminded-crypto-kit/overview) project, which already has big integer math and cryptographic hash function features developed.
 
 Generating Standard Elliptic Curve for ECDSA library:
 1. [SEC-2](http://www.secg.org/sec2-v2.pdf) recommends a set of standard elliptic curves defined by a sextuple of parameters (p,a,b,G,n,h). Here 'p' specifies the finite field F_p. 'a' and 'b' are the coefficients of the elliptic curve y^2 = x^3 + ax^2 + b. 'G' is the base point or generator of the curve. 'n' is the order of 'G' and 'h' is the cofactor of the sub-group such that n*h gives the number of curve points in the finite field F_p. 
-2. The parameters are written in octet-string format and hence are required to be converted to usable format (for example, G has to be represented as a curve point format (x,y)) using the procedure mentioned in [SEC-1](http://www.secg.org/sec1-v2.pdf).
+2. The parameters are written in octet-string format and hence are required to be converted to usable format (for example, 'G' has to be represented as a curve point format (x,y)) using the procedure mentioned in [SEC-1](http://www.secg.org/sec1-v2.pdf).
 3. Next all the parameters are to be represented in big int format which is compatible with MPC protocol in Obliv-C.
 
 MPC protocol for ECDSA based Certificate Signing:
 1. Both CA machines combine their pseudo-random private key shares inside the MPC protocol to obtain the master private key (not revealed to either of the parties) that is used in ECDSA for certificate signing. 
-2. Next we perform the certificate signing with the private key (via steps 1-7 of [Certificate Signing](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)) inside the MPC protocol.
+2. Next we perform the certificate signing with the private key (via steps 1-7 of [Certificate Signing Algorithm](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm)) inside the MPC protocol.
 3. At the end of the protocol, the signed cirtificate and the public key are revealed to both the parties.
 
 
