@@ -1,0 +1,27 @@
+#include "oblivCA.oh"
+
+void signCertificate(void* args){
+  protocolIO *io = args;
+  obig pk1, pk2, pk;
+  obliv char k1[MAXN], k2[MAXN];
+  io->private_key = (char *) malloc(MAXN);
+  
+  obig_init(&pk1, MAXN);
+  obig_init(&pk2, MAXN);
+  obig_init(&pk, MAXN);
+  
+  feedOblivCharArray(k1, io->private_key_share1, MAXN, 1);
+  feedOblivCharArray(k2, io->private_key_share2, MAXN, 2);
+  
+  obig_import_opointed(&pk1, k1, MAXN);
+  obig_import_opointed(&pk2, k2, MAXN);
+
+  obig_xor(&pk, pk1, pk2);
+
+  for (int ii = 0; ii < pk.digits; ii++) // temporary code to check if private key is correctly evaluated
+    revealOblivChar(&io->private_key[ii], pk.data[ii], 0);
+
+  obig_free(&pk1);
+  obig_free(&pk2);
+  obig_free(&pk);
+}
