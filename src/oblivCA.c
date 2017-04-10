@@ -2,6 +2,8 @@
 #include <obliv.h>
 #include <time.h>
 #include "oblivCA.oh"
+#include "/home/hannah/Desktop/obliv-c/test/oblivc/common/util.h"
+
 
 int main(int argc,char *argv[]){
   ProtocolDesc pd;
@@ -19,7 +21,12 @@ int main(int argc,char *argv[]){
     memcpy(io.private_key_share2, "2222", MAXN);
 
   start = clock();
-  protocolUseStdio(&pd);
+  //protocolUseStdio(&pd);
+
+  const char* remote_host = (strcmp(argv[3],"--")==0?NULL:argv[3]);
+  ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
+
+
   setCurrentParty(&pd,argv[1][0]=='1'?1:2);
   execYaoProtocol(&pd,signCertificate,&io);
   cleanupProtocol(&pd);

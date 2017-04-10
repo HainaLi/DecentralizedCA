@@ -355,3 +355,34 @@ static const ecc_domain_parms_t domain_parms[] =
 
     { NULL, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL }
   };
+
+
+
+/* Return the index of the domain_parms table for a curve with NAME.
+   Return -1 if not found.  */
+static int
+find_domain_parms_idx (const char *name)
+{
+  int idx, aliasno;
+
+  /* First check our native curves.  */
+  for (idx = 0; domain_parms[idx].desc; idx++)
+    if (!strcmp (name, domain_parms[idx].desc))
+      return idx;
+
+  /* If not found consult the alias table.  */
+  if (!domain_parms[idx].desc)
+    {
+      for (aliasno = 0; curve_aliases[aliasno].name; aliasno++)
+        if (!strcmp (name, curve_aliases[aliasno].other))
+          break;
+      if (curve_aliases[aliasno].name)
+        {
+          for (idx = 0; domain_parms[idx].desc; idx++)
+            if (!strcmp (curve_aliases[aliasno].name, domain_parms[idx].desc))
+              return idx;
+        }
+    }
+
+  return -1;
+}
