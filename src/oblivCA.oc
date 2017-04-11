@@ -1,4 +1,3 @@
-
 #include "oblivCA.oh"
 
 void signCertificate(void* args){
@@ -9,8 +8,8 @@ void signCertificate(void* args){
   
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
-  obig_init(&pk, MAXN);
-  
+  obig_init(&pk, MAXN); 
+ 
   feedOblivCharArray(k1, io->private_key_share1, MAXN, 1);
   feedOblivCharArray(k2, io->private_key_share2, MAXN, 2);
   

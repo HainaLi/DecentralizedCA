@@ -2,7 +2,7 @@
 #include <obliv.h>
 #include <time.h>
 #include "oblivCA.oh"
-#include "/home/hannah/Desktop/obliv-c/test/oblivc/common/util.h"
+#include "util.h"
 
 
 int main(int argc,char *argv[]){
@@ -17,12 +17,12 @@ int main(int argc,char *argv[]){
  
   //protocolUseStdio(&pd);
 
-  if(strcmp(argv[3],"--")==0)
+  if(strcmp(argv[2],"--")==0)
     party = 1;
   else
     party = 2;
 
-  const char* remote_host = (strcmp(argv[3],"--")==0?NULL:argv[3]);
+  const char* remote_host = (strcmp(argv[2],"--")==0?NULL:argv[2]);
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
   if(party == 1)    
@@ -32,17 +32,16 @@ int main(int argc,char *argv[]){
     memcpy(io.private_key_share2, "2222", MAXN);
 
   start = clock();
-
   //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
   setCurrentParty(&pd,(remote_host?2:1));
   execYaoProtocol(&pd,signCertificate,&io);
   cleanupProtocol(&pd);
   end = clock();
 
-  int gates = yaoGateCount();
+//  int gates = yaoGateCount();
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
   fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
-  fprintf(stderr,"\nNumber of Gates: %u\n", gates);
+//  fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
   io.private_key[MAXN-1] = '\0'; // temp code for check, shoudl be removed
   fprintf(stderr,"\nCombined Private Key: %s\n", io.private_key);
