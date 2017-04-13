@@ -9,9 +9,7 @@ void signCertificate(void* args){
   obliv char k1[MAXN], k2[MAXN];
   obliv char p_c[MAXN], g_x_c[MAXN], n_c[MAXN]; 
   io->private_key = (char *) malloc(MAXN);
-  io->p = (char *) malloc(MAXN);
-  io->g_x = (char *) malloc(MAXN);
-  io->n = (char *) malloc(MAXN);
+
   io->output_r = (char *) malloc(MAXN);
 
   obig_init(&pk1, MAXN);
@@ -32,12 +30,25 @@ void signCertificate(void* args){
   feedOblivCharArray(p_c, io->p, MAXN, 3);
   feedOblivCharArray(g_x_c, io->g_x, MAXN, 4);
   feedOblivCharArray(n_c, io->n, MAXN, 5);
+
+  /*
+  p_c = feedOblivLLong(io->p, 1);
+  g_x_c = feedOblivLLong(io->g_x, 2);
+  n_c = feedOblivLLong(io->n, 3);
+  */
   
   obig_import_opointed(&pk1, k1, MAXN);
   obig_import_opointed(&pk2, k2, MAXN);
   obig_import_opointed(&p_o, p_c, MAXN); 
   obig_import_opointed(&g_x_o, g_x_c, MAXN); 
   obig_import_opointed(&n_o, n_c, MAXN); 
+
+  /*
+  obig_import_onative(&p_o, p_c); 
+  obig_import_onative(&g_x_o, g_x_c); 
+  obig_import_onative(&n_o, n_c); 
+  */
+
 
   //xor private keys to obtain a master private key
   obig_xor(&pk, pk1, pk2);
