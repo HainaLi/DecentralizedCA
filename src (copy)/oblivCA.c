@@ -13,21 +13,23 @@ int main(int argc,char *argv[]){
   int party;
 
   //input curve parameters
-  const char *p_hexstring = "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED";
+  const char *p_hexstring = "0x7FFFFFFF";
   const char *a_hexstring = "-0x01";
-  const char *b_hexstring = "-0x2DFC9311D490018C7338BF8688861767FF8FF5B2BEBE27548A14B235ECA6874A";
-  const char *n_hexstring = "0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
-  const char *g_x_hexstring = "0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A";
-  const char *g_y_hexstring = "0x6666666666666666666666666666666666666666666666666666666666666658";
+  const char *b_hexstring = "-0x2DFC9311";
+  const char *n_hexstring = "0x10000000";
+  const char *g_x_hexstring = "0x216936D3";
+  const char *g_y_hexstring = "0x66666666";
   const char *h_hexstring = "0x08";
       
-  long p_long = (long)strtol(p_hexstring, NULL, 16);
+  unsigned long long p_long = (long long)strtol(p_hexstring, NULL, 0);
+  unsigned long long g_x_long = (long long)strtol(g_x_hexstring, NULL, 0);
+  unsigned long long n_long = (long long)strtol(n_hexstring, NULL, 0);
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
-  io.p = (char *) malloc(MAXN);
-  io.g_x = (char *) malloc(MAXN);
-  io.n = (char *) malloc(MAXN);
+  io.p = (long long *) malloc(MAXN);
+  io.g_x = (long long *) malloc(MAXN);
+  io.n = (long long *) malloc(MAXN);
 
   //protocolUseStdio(&pd);
 
@@ -45,9 +47,9 @@ int main(int argc,char *argv[]){
   else if (party == 2)    
     memcpy(io.private_key_share2, "2222", MAXN);
 
-  memcpy(io.p, p_hexstring, MAXN);
-  memcpy(io.g_x, g_x_hexstring, MAXN);
-  memcpy(io.n, n_hexstring, MAXN);
+  memcpy(io.p, p_long, MAXN);
+  memcpy(io.g_x, g_x_long, MAXN);
+  memcpy(io.n, n_long, MAXN);
 
   start = clock();
   //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
