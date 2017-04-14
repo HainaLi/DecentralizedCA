@@ -30,7 +30,9 @@ typedef struct protocolIO{
   char * p;
   char * g_x;
   char * n;
-  char * output_r; 
+  unsigned output_r; 
+  int * output; 
+  bool * tempBool; 
 
 }protocolIO;
 

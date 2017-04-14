@@ -10,7 +10,9 @@ void signCertificate(void* args){
   obliv char p_c[MAXN], g_x_c[MAXN], n_c[MAXN]; 
   io->private_key = (char *) malloc(MAXN);
 
-  io->output_r = (char *) malloc(MAXN);
+  io->output = (int8_t *) malloc(MAXN);
+  //io->output_r = (char *) malloc(MAXN);
+
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
@@ -31,40 +33,53 @@ void signCertificate(void* args){
   feedOblivCharArray(g_x_c, io->g_x, MAXN, 4);
   feedOblivCharArray(n_c, io->n, MAXN, 5);
 
-  /*
-  p_c = feedOblivLLong(io->p, 1);
-  g_x_c = feedOblivLLong(io->g_x, 2);
-  n_c = feedOblivLLong(io->n, 3);
-  */
-  
   obig_import_opointed(&pk1, k1, MAXN);
   obig_import_opointed(&pk2, k2, MAXN);
   obig_import_opointed(&p_o, p_c, MAXN); 
   obig_import_opointed(&g_x_o, g_x_c, MAXN); 
   obig_import_opointed(&n_o, n_c, MAXN); 
 
-  /*
-  obig_import_onative(&p_o, p_c); 
-  obig_import_onative(&g_x_o, g_x_c); 
-  obig_import_onative(&n_o, n_c); 
-  */
-
 
   //xor private keys to obtain a master private key
   obig_xor(&pk, pk1, pk2);
 
-  //signing operation follows: http://www.secg.org/sec1-v2.pdf page 44 4.1.3
-
-  //we've already completed steps 1 and 2
-
-  //step 3: r = g_x mod n
-  obliv bool success = obig_div_mod(&result_q, &result_r, g_x_o, n_o);
-
-  for (int ii = 0; ii < result_r.digits; ii++) // temporary code to check if private key is correctly evaluated
-    revealOblivChar(&io->output_r[ii], result_r.data[ii], 0);
   
+  for (int ii = 0; ii < pk.digits; ii++) // temporary code to check if private key is correctly evaluated
+    revealOblivChar(&io->private_key[ii], pk.data[ii], 0);
   
+
+  //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
+
+  //1. Select an integer d [1, n-1]
+  //2. Compute Q=dG
+
+  //3: r = Q_x mod n
+  /*
+  obliv bool success = obig_div_mod(&result_q, &result_r,[insert q_x], n_o);
+  revealOblivBool(&io->tempBool, success, 0); 
+  unsigned char temp; 
+
+
+  for (int ii = result_q.digits -1; ii >= 0; ii--) {
+    revealOblivChar(&temp, result_r.data[ii], 0);
+    io->output_r <<= 8; 
+    io->output_r += temp; 
+  }
+  */
   
+  obig zero_o; 
+  /*
+  //Check whether result_r is zero
+  char *zero_string = "0";
+  obliv char zero[MAXN]; 
+  feedOblivCharArray(zero, zero_string, MAXN, 1);
+  
+  obig_init(&zero_o, MAXN);
+  obig_import_opointed(&zero_o, zero, MAXN); 
+  obliv int8_t r_comp_result = obig_cmp(zero_o, result_r);
+  */
+  //revealOblivChar(&io->output, r_comp_result, 0); 
+
   obig_free(&pk1);
   obig_free(&pk2);
   obig_free(&pk);
@@ -73,62 +88,7 @@ void signCertificate(void* args){
   obig_free(&n_o);
   obig_free(&result_q);
   obig_free(&result_r);
-
-  /*
-  
-
-  // obig_div_mod
-
-  unsigned int x = 0x7E48A840;
-  unsigned int y = 0x47E0DD18;
-
-  obliv unsigned int xo;
-  obliv unsigned int yo;
-  xo = feedOblivInt(x, 1);
-  yo = feedOblivInt(y, 2);
-
-  obig x_test;
-  obig y_test;
-  obig result_q;
-  obig result_r;
-
-  obig_init(&x_test, sizeof(int));
-  obig_init(&y_test, sizeof(int));
-  obig_init(&result_q, sizeof(int));
-  obig_init(&result_r, sizeof(int));
-
-  
-  obig_import_onative(&x_test, xo);
-  obig_import_onative(&y_test, yo);
-  unsigned char temp;
-  //unsigned output_q;
-  //unsigned output_r;
-  io->output_q = (int *) malloc(MAXN);
-  io->output_r = (int *) malloc(MAXN);
-
-  obliv bool success = obig_div_mod(result_q, result_r, x_test, y_test);
-  bool tempBool;
-  revealOblivBool(&tempBool, success, 0);
-  
-
-  for (int ii = result_q.digits -1; ii >= 0; ii--) {
-    revealOblivChar(&temp, result_q.data[ii], 0);
-    &io->output_q <<= 8;
-    io->output_q += temp;
-  }
-
-  for (int ii = result_r.digits -1; ii >= 0; ii--) {
-    revealOblivChar(&temp, result_r.data[ii], 0);
-    io->output_r <<= 8;
-    io->output_r += temp;
-  }
-
-  obig_free(&x_test);
-  obig_free(&y_test);
-  obig_free(&result_q);
-  obig_free(&result_r);
-  */
-
+  obig_free(&zero_o); 
   
   
 }

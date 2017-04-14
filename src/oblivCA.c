@@ -13,15 +13,14 @@ int main(int argc,char *argv[]){
   int party;
 
   //input curve parameters
-  const char *p_hexstring = "0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED";
-  const char *a_hexstring = "-0x01";
-  const char *b_hexstring = "-0x2DFC9311D490018C7338BF8688861767FF8FF5B2BEBE27548A14B235ECA6874A";
+  const char *p_hexstring = "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED";
+  const char *a_hexstring = "-01";
+  const char *b_hexstring = "-2DFC9311D490018C7338BF8688861767FF8FF5B2BEBE27548A14B235ECA6874A";
   const char *n_hexstring = "0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
   const char *g_x_hexstring = "0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A";
-  const char *g_y_hexstring = "0x6666666666666666666666666666666666666666666666666666666666666658";
-  const char *h_hexstring = "0x08";
+  const char *g_y_hexstring = "6666666666666666666666666666666666666666666666666666666666666658";
+  const char *h_hexstring = "08";
       
-  long p_long = (long)strtol(p_hexstring, NULL, 16);
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
@@ -49,6 +48,7 @@ int main(int argc,char *argv[]){
   memcpy(io.g_x, g_x_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
 
+
   start = clock();
   //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
   setCurrentParty(&pd,(remote_host?2:1));
@@ -62,7 +62,10 @@ int main(int argc,char *argv[]){
 //  fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
   io.private_key[MAXN-1] = '\0'; // temp code for check, shoudl be removed
-  fprintf(stderr,"\nCombined Private Key: %s\n", io.private_key);
+  //fprintf(stderr,"\nComputation output: %d\n", io.output);
+  fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
+  fprintf(stderr,"\noutput_r: %s\n", io.output_r);
+  fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);
 
   /*
   fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, io.output_q);
