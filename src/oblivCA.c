@@ -19,8 +19,7 @@ int main(int argc,char *argv[]){
   const char *n_hexstring = "0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
   const char *g_x_hexstring = "0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A";
   const char *g_y_hexstring = "6666666666666666666666666666666666666666666666666666666666666658";
-  const char *h_hexstring = "08";
-      
+  const char *h_hexstring = "08";      
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
@@ -45,9 +44,12 @@ int main(int argc,char *argv[]){
     memcpy(io.private_key_share2, "2222", MAXN);
 
   memcpy(io.p, p_hexstring, MAXN);
+  memcpy(io.a, a_hexstring, MAXN);
+  memcpy(io.b, b_hexstring, MAXN);
   memcpy(io.g_x, g_x_hexstring, MAXN);
+  memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
-
+  memcpy(io.h, h_hexstring, MAXN);
 
   start = clock();
   //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
@@ -61,7 +63,6 @@ int main(int argc,char *argv[]){
   fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
 //  fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
-  io.private_key[MAXN-1] = '\0'; // temp code for check, shoudl be removed
   //fprintf(stderr,"\nComputation output: %d\n", io.output);
   fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
   fprintf(stderr,"\noutput_r: %s\n", io.output_r);

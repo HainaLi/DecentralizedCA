@@ -6,16 +6,11 @@
 
 #define MAXN 64
 
-typedef struct curve_point{
-  obig x;
-  obig y;
-}curve_point;
-
 typedef struct curve{
   obig p;
   obig a;
   obig b;
-  curve_point G;
+  obig g_x, g_y;
   obig n;
   obig h;
 }curve;
@@ -28,8 +23,11 @@ typedef struct protocolIO{
   char * msg;
   char * cert;
   char * p;
-  char * g_x;
+  char * a;
+  char * b;
+  char * g_x, * g_y;
   char * n;
+  char * h;
   unsigned output_r; 
   int * output; 
   bool * tempBool; 
@@ -37,5 +35,9 @@ typedef struct protocolIO{
 }protocolIO;
 
 void signCertificate(void* args);
+
+void pointDouble(obig* px, obig* py, obig a);
+void pointAdd(obig* px, obig* py, obig* qx, obig* qy);
+void curveMult(obig* gx, obig* gy, obig d, obig a);
 
 #endif

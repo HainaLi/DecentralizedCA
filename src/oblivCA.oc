@@ -1,5 +1,17 @@
 #include "oblivCA.oh"
 
+void pointDouble(obig* px, obig* py, obig a) obliv{
+
+}
+
+void pointAdd(obig* px, obig* py, obig* qx, obig* qy) obliv{
+
+}
+
+void curveMult(obig* gx, obig* gy, obig d, obig a) obliv{
+
+}
+
 void signCertificate(void* args){
   
   
@@ -12,7 +24,6 @@ void signCertificate(void* args){
 
   io->output = (int8_t *) malloc(MAXN);
   //io->output_r = (char *) malloc(MAXN);
-
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
@@ -39,14 +50,8 @@ void signCertificate(void* args){
   obig_import_opointed(&g_x_o, g_x_c, MAXN); 
   obig_import_opointed(&n_o, n_c, MAXN); 
 
-
   //xor private keys to obtain a master private key
-  obig_xor(&pk, pk1, pk2);
-
-  
-  for (int ii = 0; ii < pk.digits; ii++) // temporary code to check if private key is correctly evaluated
-    revealOblivChar(&io->private_key[ii], pk.data[ii], 0);
-  
+  obig_xor(&pk, pk1, pk2);  
 
   //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
 
