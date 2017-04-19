@@ -1,19 +1,67 @@
 #include "oblivCA.oh"
 
+/*
+lambda = (3x^2 + a)/2y
+resx = lambda^2 - 2x
+resy = lambda(x - resx) - y
+*/
 void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a) obliv{
-  obig lambda, x2;
+  obig lambda, lambda2, x2, num, den;
   obig_init(&lambda, MAXN);
+  obig_init(&lambda2, MAXN);
   obig_init(&x2, MAXN);
+  obig_init(&num, MAXN);
+  obig_init(&den, MAXN);
   
-  obig_mul(&x2, px, px);
+  
+  obig_mul_signed(&x2, px, px);
 
-  obig_add(&x2, 3*x2, a);
+  obig_add_signed(&num, x2, x2);
+  obig_add_signed(&num, tmp, x2);
+  
+  obig_add_signed(&num, num, a);
+  obig_add_signed(&den, py, py);
 
-  obig_div_mod(&lambda, &r, x2, 2*py);
+  obig_div_mod_signed(&lambda, &r, num, den);
+
+  obig_mul_signed(&lambda2, lambda, lambda);
+  
+  obig_sub_signed(resx, lambda2, px);
+  obig_sub_signed(resx, *resx, px);
+
+  obig_sub_signed(resy, px, *resx);
+  obig_mul_signed(resy, lambda, *resy);
+  obig_sub_signed(resy, *resy, py);
 }
 
-void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy) obliv{
 
+/*
+lambda = (yq - yp)/(xq - xp)
+resx = lambda^2 - 2x
+resy = lambda(x - resx) - y
+*/
+void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy) obliv{
+  obig lambda, lambda2, num, den;
+  obig_init(&lambda, MAXN);
+  obig_init(&lambda2, MAXN);
+  obig_init(&num, MAXN);
+  obig_init(&den, MAXN);
+  
+  
+  obig_sub_signed(&num, qy, py);
+  
+  obig_sub_signed(&den, qx, px);
+
+  obig_div_mod_signed(&lambda, &r, num, den);
+
+  obig_mul_signed(&lambda2, lambda, lambda);
+  
+  obig_sub_signed(resx, lambda2, px);
+  obig_sub_signed(resx, *resx, qx);
+
+  obig_sub_signed(resy, px, *resx);
+  obig_mul_signed(resy, lambda, *resy);
+  obig_sub_signed(resy, *resy, py);
 }
 
 void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a) obliv{
