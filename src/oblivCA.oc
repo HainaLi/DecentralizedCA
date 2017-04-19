@@ -17,7 +17,7 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a) obliv{
   obig_mul_signed(&x2, px, px);
 
   obig_add_signed(&num, x2, x2);
-  obig_add_signed(&num, tmp, x2);
+  obig_add_signed(&num, num, x2);
   
   obig_add_signed(&num, num, a);
   obig_add_signed(&den, py, py);
