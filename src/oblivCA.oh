@@ -18,6 +18,8 @@ typedef struct curve{
 typedef struct protocolIO{
   char * private_key_share1;
   char * private_key_share2;
+  char * k1;
+  char * k2;
   char * private_key;
   char * public_key;
   char * msg;
@@ -36,8 +38,8 @@ typedef struct protocolIO{
 
 void signCertificate(void* args);
 
-void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a);
-void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy);
-void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a);
+void pointDouble(obig* px, obig* py, obig a);
+void pointAdd(obig* px, obig* py, obig* qx, obig* qy);
+void curveMult(obig* gx, obig* gy, obig d, obig a);
 
 #endif

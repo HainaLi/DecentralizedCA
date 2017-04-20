@@ -37,11 +37,15 @@ int main(int argc,char *argv[]){
   const char* remote_host = (strcmp(argv[2],"--")==0?NULL:argv[2]);
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
-  if(party == 1)    
+  if(party == 1){
     memcpy(io.private_key_share1, "abcd", MAXN);
+    memcpy(io.k1, "abcdi", MAXN);  // cryptographically generate this
+  }
 
-  else if (party == 2)    
+  else if (party == 2){
     memcpy(io.private_key_share2, "2222", MAXN);
+    memcpy(io.k2, "49256", MAXN);  // cryptographically generate this
+  }
 
   memcpy(io.p, p_hexstring, MAXN);
   memcpy(io.a, a_hexstring, MAXN);

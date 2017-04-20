@@ -32,6 +32,12 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a) obliv{
   obig_sub_signed(resy, px, *resx);
   obig_mul_signed(resy, lambda, *resy);
   obig_sub_signed(resy, *resy, py);
+
+  obig_free(&x2);
+  obig_free(&lambda);
+  obig_free(&lambda2);
+  obig_free(&num);
+  obig_free(&den);
 }
 
 
@@ -62,30 +68,63 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy) obliv{
   obig_sub_signed(resy, px, *resx);
   obig_mul_signed(resy, lambda, *resy);
   obig_sub_signed(resy, *resy, py);
+
+  obig_free(&lambda);
+  obig_free(&lambda2);
+  obig_free(&num);
+  obig_free(&den);
 }
 
+// elliptic curve point multiplication
 void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a) obliv{
+  obig Nx, Ny, Qx, Qy;
+  obig_init(&Nx, MAXN);
+  obig_init(&Ny, MAXN);
+  obig_init(&Qx, MAXN);
+  obig_init(&Qy, MAXN);
+  obig_copy(&Nx, gx);
+  obig_copy(&Ny, gy);
+  obig_zero(&Qx);
+  obig_zero(&Qy);
 
+  for(uint8 ii = 0; ii < d.digits; ii++){
+    for(int j = 0; j < 8; j++){
+      if(d.data[ii] & (1 << j)){
+        pointAdd(&Qx, &Qy, Qx, Qy, Nx, Ny);
+      }
+      pointDouble(&Nx, &Ny, Nx, Ny, a);
+    }
+  }
+  obig_copy(resx, Qx);
+  obig_copy(resy, Qy);
+  obig_free(&Nx);
+  obig_free(&Ny);
+  obig_free(&Qx);
+  obig_free(&Qy);
 }
 
 void signCertificate(void* args){
   
   
   protocolIO *io = args;
-  obig pk1, pk2, pk;
-  obig p_o, g_x_o, n_o; 
-  obliv char k1[MAXN], k2[MAXN];
-  obliv char p_c[MAXN], g_x_c[MAXN], n_c[MAXN]; 
+  obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, qx, qy;
+  obig p_o, g_x_o, g_y_o, n_o; 
+  obliv char k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
+  obliv char p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN];
   io->private_key = (char *) malloc(MAXN);
 
   io->output = (int8_t *) malloc(MAXN);
-  //io->output_r = (char *) malloc(MAXN);
+  io->output_r = (char *) malloc(MAXN);
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
-  obig_init(&pk, MAXN); 
+  obig_init(&pk, MAXN);
+  obig_init(&kk1, MAXN);
+  obig_init(&kk2, MAXN);
+  obig_init(&k, MAXN); 
   obig_init(&p_o, MAXN);
   obig_init(&g_x_o, MAXN);
+  obig_init(&g_y_o, MAXN);
   obig_init(&n_o, MAXN);
 
   obig result_q;
@@ -93,30 +132,40 @@ void signCertificate(void* args){
 
   obig_init(&result_q, MAXN);
   obig_init(&result_r, MAXN);
- 
-  feedOblivCharArray(k1, io->private_key_share1, MAXN, 1);
-  feedOblivCharArray(k2, io->private_key_share2, MAXN, 2);
-  feedOblivCharArray(p_c, io->p, MAXN, 3);
-  feedOblivCharArray(g_x_c, io->g_x, MAXN, 4);
-  feedOblivCharArray(n_c, io->n, MAXN, 5);
+  obig_init(&qx, MAXN);
+  obig_init(&qy, MAXN);
 
-  obig_import_opointed(&pk1, k1, MAXN);
-  obig_import_opointed(&pk2, k2, MAXN);
-  obig_import_opointed(&p_o, p_c, MAXN); 
-  obig_import_opointed(&g_x_o, g_x_c, MAXN); 
-  obig_import_opointed(&n_o, n_c, MAXN); 
+ 
+  feedOblivCharArray(ppk1, io->private_key_share1, MAXN, 1);
+  feedOblivCharArray(ppk2, io->private_key_share2, MAXN, 2);
+  feedOblivCharArray(kk1, io->k1, MAXN, 1);
+  feedOblivCharArray(kk2, io->k2, MAXN, 2);
+  feedOblivCharArray(p_c, io->p, MAXN, 0);
+  feedOblivCharArray(g_x_c, io->g_x, MAXN, 0);
+  feedOblivCharArray(g_y_c, io->g_y, MAXN, 0);
+  feedOblivCharArray(n_c, io->n, MAXN, 0);
+
+  obig_import_opointed(&pk1, ppk1, MAXN);
+  obig_import_opointed(&pk2, ppk2, MAXN);
+  obig_import_opointed(&kk1, k1, MAXN);
+  obig_import_opointed(&kk2, k2, MAXN);
+  obig_import_opointed(&p_o, p_c, MAXN);
+  obig_import_opointed(&g_x_o, g_x_c, MAXN);
+  obig_import_opointed(&g_y_o, g_y_c, MAXN);
+  obig_import_opointed(&n_o, n_c, MAXN);
 
   //xor private keys to obtain a master private key
-  obig_xor(&pk, pk1, pk2);  
+  obig_xor(&pk, pk1, pk2);
 
   //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
 
   //1. Select an integer d [1, n-1]
+  obig_xor(&k, kk1, kk2);
   //2. Compute Q=dG
-
+  curveMult(&qx, &qy, g_x_o, g_y_o, k);
   //3: r = Q_x mod n
-  /*
-  obliv bool success = obig_div_mod(&result_q, &result_r,[insert q_x], n_o);
+  
+  obliv bool success = obig_div_mod(&result_q, &result_r, qx, n_o);
   revealOblivBool(&io->tempBool, success, 0); 
   unsigned char temp; 
 
@@ -126,31 +175,30 @@ void signCertificate(void* args){
     io->output_r <<= 8; 
     io->output_r += temp; 
   }
-  */
+  
   
   obig zero_o; 
-  /*
+  
   //Check whether result_r is zero
-  char *zero_string = "0";
-  obliv char zero[MAXN]; 
-  feedOblivCharArray(zero, zero_string, MAXN, 1);
   
   obig_init(&zero_o, MAXN);
-  obig_zero(&zero_o); // this should take care of zero initialization
-  obig_import_opointed(&zero_o, zero, MAXN); 
+  obig_zero(&zero_o); 
   obliv int8_t r_comp_result = obig_cmp(zero_o, result_r);
-  */
-  //revealOblivChar(&io->output, r_comp_result, 0); 
+  
+  revealOblivChar(&io->output, r_comp_result, 0); 
 
   obig_free(&pk1);
   obig_free(&pk2);
   obig_free(&pk);
+  obig_free(&kk1);
+  obig_free(&kk2);
+  obig_free(&k);
   obig_free(&p_o);
   obig_free(&g_x_o);
+  obig_free(&g_y_o);
   obig_free(&n_o);
   obig_free(&result_q);
   obig_free(&result_r);
   obig_free(&zero_o); 
-  
   
 }
