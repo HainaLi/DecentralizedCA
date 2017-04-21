@@ -23,9 +23,15 @@ int main(int argc,char *argv[]){
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
+  io.k1 = (char *) malloc(MAXN);
+  io.k2 = (char *) malloc(MAXN);
   io.p = (char *) malloc(MAXN);
   io.g_x = (char *) malloc(MAXN);
+  io.g_y = (char *) malloc(MAXN);
   io.n = (char *) malloc(MAXN);
+  io.h = (char *) malloc(MAXN);
+  io.a = (char *) malloc(MAXN);
+  io.b = (char *) malloc(MAXN);
 
   //protocolUseStdio(&pd);
 
