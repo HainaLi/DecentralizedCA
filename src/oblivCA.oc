@@ -23,18 +23,18 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig n) obliv
   obig_div_mod(&tmp, &x2, x2_mod, n);
 
   obig_add(&num, x2, x2);
-  if(obig_gt(num, n))
+  obliv if(obig_gt(num, n))
     obig_sub(&num, num, n);
   obig_add(&num, num, x2);
-  if(obig_gt(num, n))
+  obliv if(obig_gt(num, n))
     obig_sub(&num, num, n);
 
   obig_add(&num, num, a);
-  if(obig_gt(num, n))
+  obliv if(obig_gt(num, n))
     obig_sub(&num, num, n);
 
   obig_add(&den, py, py);
-  if(obig_gt(den, n))
+  obliv if(obig_gt(den, n))
     obig_sub(&den, den, n);
 
   obig_div_mod_signed(&lambda, &tmp, num, den); // replace with mult-inverse
@@ -43,20 +43,20 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig n) obliv
   obig_div_mod(&tmp, &lambda2, lambda2_mod, n);
 
   obig_sub_signed(resx, lambda2, px); // handle subtractions in modular arithmetic
-  if(obig_lt(*resx, zero))
+  obliv if(obig_lt(*resx, zero))
     obig_add(resx, *resx, n);
   obig_sub_signed(resx, *resx, px); // handle subtractions in modular arithmetic
-  if(obig_lt(*resx, zero))
+  obliv if(obig_lt(*resx, zero))
     obig_add(resx, *resx, n);
 
   obig_sub_signed(resy, px, *resx); // handle subtractions in modular arithmetic
-  if(obig_lt(*resy, zero))
+  obliv if(obig_lt(*resy, zero))
     obig_add(resy, *resy, n);
   obig_mul(resy, lambda, *resy); // handle this
   obig_copy(&tt, *resy);
   obig_div_mod(&tmp, resy, tt, n);
   obig_sub_signed(resy, *resy, py); // handle subtractions in modular arithmetic
-  if(obig_lt(*resy, zero))
+  obliv if(obig_lt(*resy, zero))
     obig_add(resy, *resy, n);
 
   obig_free(&x2);
@@ -90,10 +90,10 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig n
   obig_zero(&zero);
   
   obig_sub_signed(&num, qy, py); // handle subtractions in modular arithmetic
-  if(obig_lt(num, zero))
+  obliv if(obig_lt(num, zero))
     obig_add(&num, num, n);
   obig_sub_signed(&den, qx, px); // handle subtractions in modular arithmetic
-  if(obig_lt(den, zero))
+  obliv if(obig_lt(den, zero))
     obig_add(&den, den, n);
   obig_div_mod_signed(&lambda, &tmp, num, den); // replace with mult-inverse
 
@@ -101,19 +101,19 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig n
   obig_div_mod(&tmp, &lambda2, lambda2_mod, n);
   
   obig_sub_signed(resx, lambda2, px); // handle subtractions in modular arithmetic
-  if(obig_lt(*resx, zero))
+  obliv if(obig_lt(*resx, zero))
     obig_add(resx, *resx, n);
   obig_sub_signed(resx, *resx, qx); // handle subtractions in modular arithmetic
-  if(obig_lt(*resx, zero))
+  obliv if(obig_lt(*resx, zero))
     obig_add(resx, *resx, n);
 
   obig_sub_signed(resy, px, *resx); // handle subtractions in modular arithmetic
-  if(obig_lt(*resy, zero))
+  obliv if(obig_lt(*resy, zero))
     obig_add(resy, *resy, n);
   obig_mul(resy, lambda, *resy); // handle this
   obig_copy(&tt, *resy);
   obig_div_mod(&tmp, resy, tt, n);
-  if(obig_lt(*resy, zero))
+  obliv if(obig_lt(*resy, zero))
     obig_add(resy, *resy, n);
   obig_sub_signed(resy, *resy, py); // handle subtractions in modular arithmetic
 
@@ -141,7 +141,7 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig n)
 
   for(int ii = 0; ii < d.digits; ii++){
     for(int j = 0; j < 8; j++){
-      if(d.data[ii] & (1 << j)){
+      obliv if(d.data[ii] & (1 << j)){
         pointAdd(&Qx, &Qy, Qx, Qy, Nx, Ny, n);
       }
       pointDouble(&Nx, &Ny, Nx, Ny, a, n);
