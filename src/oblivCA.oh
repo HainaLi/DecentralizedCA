@@ -4,7 +4,7 @@
 #include <obliv.oh>
 #include <obig.oh>
 
-#define MAXN 64
+#define MAXN 48
 
 typedef struct curve{
   obig p;
@@ -41,5 +41,6 @@ void signCertificate(void* args);
 void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p);
 void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p);
 void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p);
+void mult_inverse(obig *out, obig A, obig M);
 
 #endif

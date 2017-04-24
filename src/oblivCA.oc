@@ -1,4 +1,63 @@
 #include "oblivCA.oh"
+#include <stdio.h>
+
+// Extended Euclid's Algorithm for Multiplicative Inverse
+void mult_inverse(obig *out, obig A, obig M) obliv{
+  obig t, r, newt, newr, q, zero, tmp, rem;
+  ~obliv(en) {
+  obig_init(&t, MAXN);
+  obig_init(&r, MAXN);
+  obig_init(&newt, MAXN);
+  obig_init(&newr, MAXN);
+  obig_init(&q, MAXN);
+  obig_init(&rem, MAXN);
+  obig_init(&tmp, MAXN);
+  obig_init(&zero, MAXN);
+
+  obig_zero(&t);
+  obig_zero(&zero);
+  obig_one(&newt);
+  obig_copy(&r, M);
+  obig_copy(&newr, A);
+
+  obig *qref = &q;
+  obig *remref = &rem;
+  obig *rref = &r;
+  obig *newrref = &newr;
+  obig *tref = &t;
+  obig *newtref = &newt;
+  obig *tmpref = &tmp;
+
+  while(1){
+    obliv if(obig_cmp(newr, zero) != 0)
+    {
+    
+    obig_div_mod(qref, remref, r, newr);
+
+    obig_copy(rref, newr);
+    obig_copy(newrref, rem);
+
+    obig_copy(tmpref, newt);
+    obig_mul_signed(remref, q, newt);
+    obig_sub_signed(newtref, t, rem);
+    obig_copy(tref, tmp);
+    }
+  }
+  obliv if(obig_cmp(t, zero) < 0)
+    obig_add(tref, t, M);
+
+  obig_copy(out, t);
+  
+  obig_free(&t);
+  obig_free(&r);
+  obig_free(&newr);
+  obig_free(&newt);
+  obig_free(&q);
+  obig_free(&rem);
+  obig_free(&tmp);
+  obig_free(&zero);
+  }
+}
 
 /*
 lambda = (3x^2 + a)/2y
@@ -35,7 +94,7 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_add(&den, py, py);
   obig_div_mod(&tmp, &den_mod, den, p);
 
-  obig_div_mod_signed(&lambda, &tmp, num_mod, den_mod); // replace with mult-inverse
+  mult_inverse(&lambda, num_mod, den_mod);//obig_div_mod_signed(&lambda, &tmp, num_mod, den_mod); // replace with mult-inverse
 
   obig_mul(&lambda2, lambda, lambda);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
@@ -72,7 +131,6 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   }
 }
 
-
 /*
 lambda = (yq - yp)/(xq - xp)
 resx = lambda^2 - 2x
@@ -95,6 +153,7 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_init(&final_x, MAXN);
   obig_init(&final_y, MAXN);
   
+
   obig_add(&qy, qy, p);
   obig_sub(&num, qy, py);
   obig_div_mod(&tmp, &num_mod, num, p);
@@ -103,7 +162,7 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_sub(&den, qx, px);
   obig_div_mod(&tmp, &den_mod, den, p);
 
-  obig_div_mod_signed(&lambda, &tmp, num, den); // replace with mult-inverse
+  mult_inverse(&lambda, num_mod, den_mod);//obig_div_mod_signed(&lambda, &tmp, num_mod, den_mod); // replace with mult-inverse
 
   obig_mul(&lambda2, lambda, lambda);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
@@ -153,14 +212,14 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig_copy(&Ny, gy);
   obig_zero(&Qx);
   obig_zero(&Qy);
-  
+
   obig *Qxref = &Qx;
   obig *Qyref = &Qy;
   obig *Nxref = &Nx;
   obig *Nyref = &Ny;
   obig *tmpxref = &tmpx;
   obig *tmpyref = &tmpy;
-
+  
   for(int ii = 0; ii < d.digits; ii++){
     for(int j = 0; j < 8; j++){
       obliv if(d.data[ii] & (1 << j)){
@@ -172,6 +231,7 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
       obig_copy(tmpyref, Ny);
       pointDouble(Nxref, Nyref, tmpx, tmpy, a, p);
     }
+    fprintf(stderr,"\n%d\n",ii);
   }
   obig_copy(resx, Qx);
   obig_copy(resy, Qy);
@@ -188,7 +248,7 @@ void signCertificate(void* args){
   
   
   protocolIO *io = args;
-  obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, Q_x, Q_y, R_x, R_y;
+  obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, Q_x, Q_y, R_x, R_y, zero_o;
   obig p_o, g_x_o, g_y_o, n_o, a_o; 
   obliv char k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
   obliv char p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN];
@@ -245,25 +305,25 @@ void signCertificate(void* args){
   //1. Select an integer d [1, n-1]
   obig_xor(&pk, pk1, pk2);
   obig_xor(&k, kk1, kk2);
+  fprintf(stderr,"\nStep 1 complete....\n");
   //2. Compute Q=dG
   curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
+  fprintf(stderr,"\nPublic key generated....\n");
   curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
+  fprintf(stderr,"\nStep 2 complete....\n");
   //3: r = Q_x mod n
   
-  obliv bool success = obig_div_mod(&result_q, &result_r, R_x, n_o);
+  obliv bool success = obig_div_mod(&result_q, &result_r, k, n_o);
   revealOblivBool(&io->tempBool, success, 0); 
   unsigned char temp;
 
 
-  for (int ii = result_q.digits -1; ii >= 0; ii--) {
+  for (int ii = result_r.digits -1; ii >= 0; ii--) {
     revealOblivChar(&temp, result_r.data[ii], 0);
     io->output_r <<= 8; 
-    io->output_r += temp; 
+    io->output_r += temp;
   }
-  
-  
-  obig zero_o; 
-  
+    
   //Check whether result_r is zero
   
   obig_init(&zero_o, MAXN);
