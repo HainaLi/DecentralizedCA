@@ -44,12 +44,12 @@ int main(int argc,char *argv[]){
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
   if(party == 1){
-    memcpy(io.private_key_share1, "abcd", MAXN);
+    memcpy(io.private_key_share1, "abcd", MAXN); // cryptographically generate this
     memcpy(io.k1, "abcdi", MAXN);  // cryptographically generate this
   }
 
   else if (party == 2){
-    memcpy(io.private_key_share2, "2222", MAXN);
+    memcpy(io.private_key_share2, "2222", MAXN); // cryptographically generate this
     memcpy(io.k2, "49256", MAXN);  // cryptographically generate this
   }
 
@@ -68,13 +68,13 @@ int main(int argc,char *argv[]){
   cleanupProtocol(&pd);
   end = clock();
 
-//  int gates = yaoGateCount();
+  //int gates = yaoGateCount();
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
   fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
-//  fprintf(stderr,"\nNumber of Gates: %u\n", gates);
+  //fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
   //fprintf(stderr,"\nComputation output: %d\n", io.output);
-  fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
+  //fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
   fprintf(stderr,"\noutput_r: %s\n", io.output_r);
   fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);
 

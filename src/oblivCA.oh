@@ -38,8 +38,8 @@ typedef struct protocolIO{
 
 void signCertificate(void* args);
 
-void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig n);
-void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig n);
-void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig n);
+void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p);
+void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p);
+void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p);
 
 #endif
