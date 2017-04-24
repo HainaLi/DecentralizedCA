@@ -12,14 +12,14 @@ int main(int argc,char *argv[]){
   double cpu_time_used;
   int party;
 
-  //input curve parameters
-  const char *p_hexstring = "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED";
-  const char *a_hexstring = "-01";
-  const char *b_hexstring = "-2DFC9311D490018C7338BF8688861767FF8FF5B2BEBE27548A14B235ECA6874A";
-  const char *n_hexstring = "0x1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED";
-  const char *g_x_hexstring = "0x216936D3CD6E53FEC0A4E231FDD6DC5C692CC7609525A7B2C9562D608F25D51A";
-  const char *g_y_hexstring = "6666666666666666666666666666666666666666666666666666666666666658";
-  const char *h_hexstring = "08";      
+  //input curve parameters: secp192k1
+  const unsigned char * p_hexstring = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFE\xFF\xFF\xEE\x37"; //{255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,255,255,238,55}; 
+  const unsigned char *a_hexstring = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; 
+  const unsigned char * b_hexstring = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03";
+  const unsigned char *n_hexstring = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFE\x26\xF2\xFC\x17\x0F\x69\x46\x6A\x74\xDE\xFD\x8D";
+  const unsigned char *g_x_hexstring = "\xDB\x4F\xF1\x0E\xC0\x57\xE9\xAE\x26\xB0\x7D\x02\x80\xB7\xF4\x34\x1D\xA5\xD1\xB1\xEA\xE0\x6C\x7D";
+  const unsigned char *g_y_hexstring = "\x9B\x2F\x2F\x6D\x9C\x56\x28\xA7\x84\x41\x63\xD0\x15\xBE\x86\x34\x40\x82\xAA\x88\xD9\x5E\x2F\x9D";
+  const unsigned char *h_hexstring = "\x01";      
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
