@@ -2,14 +2,39 @@
 #include <string.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <gmp.h>
 #include "sha256.h"
 
-void print_hash(unsigned char hash[])
-{
-   int idx;
-   for (idx=0; idx < 32; idx++)
-      printf("%02x",hash[idx]);
-   printf("\n");
+
+//hex, int, char conversion functions
+int hex_to_int(char c){
+        int first = c / 16 - 3;
+        int second = c % 16;
+        int result = first*10 + second;
+        if(result > 9) result--;
+        return result;
+}
+
+int hex_to_ascii(char c, char d){
+        int high = hex_to_int(c) * 16;
+        int low = hex_to_int(d);
+        return high+low;
+}
+
+void hex_string_to_char_array(const char * hex_string) {
+  int length = strlen(hex_string);
+  int i;
+  char buf = 0;
+  
+  for(i = 0; i < length; i++){
+    if(i % 2 != 0){
+      printf("%i\n", hex_to_ascii(buf, hex_string[i]));
+  
+    }else{
+      buf = hex_string[i];
+    }
+  }
+
 }
 
 char* stringToBinary(char* s) {
@@ -30,6 +55,14 @@ char* stringToBinary(char* s) {
     return binary;
 }
 
+void print_hash(unsigned char hash[])
+{
+   int idx;
+   for (idx=0; idx < 32; idx++)
+      printf("%02x",hash[idx]);
+   printf("\n");
+}
+
 //outputs the hashed value
 char * hashMessage(char * message) {
     int str_len = strlen(message);
@@ -46,7 +79,7 @@ char * hashMessage(char * message) {
     //Convert M to bit string M'
     char * bit_string_message = stringToBinary(message);
 
-    //Step 3. 
+    //page 31 Step 3. 
     //H = Hash(M')
 	//unsigned char hash[SHA256_BLOCK_SIZE];
     unsigned char * hash = malloc(SHA256_BLOCK_SIZE);
@@ -56,9 +89,35 @@ char * hashMessage(char * message) {
 	sha256_final(&ctx,hash);
     //print_hash(hash);
 
+    //page 45 Step 5: deriving an integer e from H (but we're calculating using char arrays, so we will leave the output in hex)
+
+
 	return hash;
 	
 }
+
+void generate_big_num(int size, int num_bignums) {
+    mpz_t rand_Num;
+    unsigned long int i, seed;
+    gmp_randstate_t r_state;
+
+    seed = 123456;
+
+    gmp_randinit_default (r_state);
+    gmp_randseed_ui(r_state, seed);
+
+    mpz_init(rand_Num);
+
+    for(i = 0; i < num_bignums; ++i) {
+       mpz_urandomb(rand_Num,r_state,size);
+       gmp_printf("%Zx\n", rand_Num);
+    }
+
+    gmp_randclear(r_state);
+    mpz_clear(rand_Num);  
+
+}
+
 /*
 char * bit_string_to_octet_string_conversion() {
     long int binarynum, octalnum = 0, j = 1, remainder;
@@ -78,6 +137,7 @@ char * bit_string_to_octet_string_conversion() {
 int main(int argc,char *argv[]) {
     //SHA256 can only hash strings of length less than hashmaxlen = (2^61)-1 = 2.305843e18
 	char * result = hashMessage("hello"); 
+    generate_big_num(48*4, 4);
 
 	return 0;
 }

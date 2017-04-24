@@ -21,6 +21,11 @@ int main(int argc,char *argv[]){
   const unsigned char *g_y_hexstring = "\x9B\x2F\x2F\x6D\x9C\x56\x28\xA7\x84\x41\x63\xD0\x15\xBE\x86\x34\x40\x82\xAA\x88\xD9\x5E\x2F\x9D";
   const unsigned char *h_hexstring = "\x01";      
   
+  const unsigned char *rand_key_0 = "\xeb\xb1\x25\xa0\xcd\x2f\xea\x04\x68\x7f\x5e\x96\xa5\x7d\x60\x05\xb4\xde\x2c\x1d\x88\x51\xb8\x88"; 
+  const unsigned char *rand_key_1 = "\x65\xdd\x53\x5f\x47\x7e\xb8\x83\xd1\x61\xd0\xb9\xbe\x00\x45\xe8\x48\x13\xc6\x6d\x74\x0c\xed\x23";
+  const unsigned char *rand_key_2 = "\xf8\x9c\x26\x52\x91\x67\x4f\x65\x6c\x22\x18\x67\x62\x74\xd7\x17\x94\xe9\x5b\xa8\x27\x0b\x2f\xa4";
+  const unsigned char *rand_key_3 = "\x9c\xb2\x2f\xa7\xd4\x5c\x9b\x15\xeb\xaf\x26\x76\x58\x75\xa5\x8e\x56\x4b\x7e\x60\x16\xc2\x1d\x2f";
+  
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
   io.k1 = (char *) malloc(MAXN);
@@ -44,13 +49,13 @@ int main(int argc,char *argv[]){
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
   if(party == 1){
-    memcpy(io.private_key_share1, "abcd", MAXN); // cryptographically generate this
-    memcpy(io.k1, "abcdi", MAXN);  // cryptographically generate this
+    memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
+    memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
   }
 
   else if (party == 2){
-    memcpy(io.private_key_share2, "2222", MAXN); // cryptographically generate this
-    memcpy(io.k2, "49256", MAXN);  // cryptographically generate this
+    memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
+    memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
   }
 
   memcpy(io.p, p_hexstring, MAXN);
