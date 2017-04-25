@@ -32,10 +32,9 @@ typedef struct protocolIO{
   char * n;
   char * h;
   char * e;
-  unsigned output_r; 
-  char * output; 
-  bool * tempBool; 
-
+  char * r;
+  char * s;
+  bool * tempBool;
 }protocolIO;
 
 void signCertificate(void* args);

@@ -42,7 +42,6 @@ int main(int argc,char *argv[]){
   io.b = (char *) malloc(MAXN);
   io.e = (char *) malloc(E_LENGTH);
 
-  //protocolUseStdio(&pd);
 
   if(strcmp(argv[2],"--")==0)
     party = 1;
@@ -72,7 +71,6 @@ int main(int argc,char *argv[]){
   memcpy(io.h, h_hexstring, 1);
 
   start = clock();
-  //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
   setCurrentParty(&pd,(remote_host?2:1));
   execYaoProtocol(&pd,signCertificate,&io);
   cleanupProtocol(&pd);
@@ -83,18 +81,13 @@ int main(int argc,char *argv[]){
   fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
   //fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
-  //fprintf(stderr,"\nComputation output: %d\n", io.output);
-  //fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
-  for(int i = 0; i < 5; i++)
-    fprintf(stderr,"\noutput: \\x%02x\n", io.output[i]);
-  fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);
-
-  /*
-  fprintf(stderr, "\tExpected quotient:\t%08X\n\tActual quotient: \t%08X\n", expected_q, io.output_q);
-
-  fprintf(stderr, "\tExpected remainder:\t%08X\n\tActual remainder: \t%08X\n", expected_r, io.output_r);
-  */
-  
+  fprintf(stderr, "\nr is :\n");
+  for(int i = 0; i < MAXN; i++)
+    fprintf(stderr,"\noutput: \\x%02x\n", io.r[i]);
+  fprintf(stderr, "\ns is :\n");
+  for(int i = 0; i < MAXN; i++)
+    fprintf(stderr,"\noutput: \\x%02x\n", io.s[i]);
+  fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);  
 
   return 0;
 }
