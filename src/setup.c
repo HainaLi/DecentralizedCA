@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <gmp.h>
 #include "sha256.h"
-#include <math.h>
+
 
 
 //hex, int, char conversion functions
@@ -56,16 +56,16 @@ char* stringToBinary(char* s) {
     return binary;
 }
 
-void print_hash(unsigned char hash[])
+void print_hash(unsigned char hash[], int length)
 {
    int idx;
-   for (idx=0; idx < 32; idx++)
+   for (idx=0; idx < length; idx++)
       printf("%02x",hash[idx]);
    printf("\n");
 }
 
 //outputs the hashed value
-char * hashMessage(char * message, char * param_string_n) {
+char * hashMessage(char * message, int log_2_n) {
     int str_len = strlen(message);
     long hashmaxlen = 2.305843e18;
 
@@ -91,17 +91,32 @@ char * hashMessage(char * message, char * param_string_n) {
     //print_hash(hash);
 
     //page 45 Step 5: deriving an integer e from H (but we're calculating using char arrays, so we will leave the output in hex)
-    //192 < 256 not needed for our current curve
-    /*
-    double hash_len = strlen(hash);
-    double comparison = pow(2.0, (8*hash_len)); 
-    int c = (double) comparison; 
-    printf("%08x\n", c); 
+    //ceiling(log2n) < 8*haslen -> output left most log2n bits of hash
+    //ceiling(log2n) >= 8*haslen -> output hash
+    
+    int hash_len = strlen(hash);
+    int comparison = 8*hash_len; 
 
-    //5.2: we're comparing n >= 2^(8*hashlen)    
+    if (log_2_n < comparison) {
+        int target_len = log_2_n/8; 
+        char subchar[target_len];
+        memcpy(subchar, &hash[0], target_len);
+        //subchar[target_len] = "\0";
+        print_hash(subchar, target_len); 
+        //return subchar;
+    }
+    else {
+        print_hash(hash, 32);
+        //return hash; 
+    }
+    
+
+
+    //5.2: we're comparing n >= 2^(8*hashlen) , there's no log in gmp, so we're just going to intput the log2(n)
+    /*  
     mpz_t n_mpf; 
     mpz_init(n_mpf);
-    mpz_set_str(n_mpf, "115792089237316195423570985008687907853269984665640564039457584007913129639936", 10);
+    mpz_set_str(n_mpf, "115792089237316195423570985008687907853269984665640564039457584007913129639936", 10); //1.16e77
     gmp_printf("%i\n", n_mpf); 
 
     mpz_t param_n;
@@ -113,8 +128,9 @@ char * hashMessage(char * message, char * param_string_n) {
     mpz_clear(param_n);
     mpz_clear(n_mpf);
     */
+    
 
-    return hash;
+    
     
 }
 
@@ -162,8 +178,9 @@ int main(int argc,char *argv[]) {
     //generate_big_num(48*4, 4);
 
     char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
-    char * result = hashMessage("hello", param_string_n); 
-    print_hash(result); 
+    int log2n = 256; 
+    hashMessage("hello", log2n); 
+    
 
 
     return 0;
