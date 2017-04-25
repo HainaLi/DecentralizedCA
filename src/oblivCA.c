@@ -29,10 +29,10 @@ int main(int argc,char *argv[]){
   const unsigned char * e_hexstring = "\x0d\x80\xb4\x91\x9e\x2e\xdb\x5e\x1b\xa3\xe6\x19\xe8\xb6\x0b\xfa\xd2\x5d\x16\xc4\xde\xec\x05\xa7"; 
   //this is the e you need in step 6. Right now, it's only the hash of "hello". Working on the cert gen now. Will update this value
   
-  io.private_key_share1 = (char *) malloc(MAXN);
-  io.private_key_share2 = (char *) malloc(MAXN);
-  io.k1 = (char *) malloc(MAXN);
-  io.k2 = (char *) malloc(MAXN);
+  io.private_key_share1 = (char *) malloc(MAXN/2);
+  io.private_key_share2 = (char *) malloc(MAXN/2);
+  io.k1 = (char *) malloc(MAXN/2);
+  io.k2 = (char *) malloc(MAXN/2);
   io.p = (char *) malloc(MAXN);
   io.g_x = (char *) malloc(MAXN);
   io.g_y = (char *) malloc(MAXN);
@@ -52,13 +52,13 @@ int main(int argc,char *argv[]){
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
   if(party == 1){
-    memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
-    memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
+    memcpy(io.private_key_share1, rand_key_0, MAXN/2); // cryptographically generate this
+    memcpy(io.k1, rand_key_1, MAXN/2);  // cryptographically generate this
   }
 
   else if (party == 2){
-    memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
-    memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
+    memcpy(io.private_key_share2, rand_key_2, MAXN/2); // cryptographically generate this
+    memcpy(io.k2, rand_key_3, MAXN/2);  // cryptographically generate this
   }
 
   memcpy(io.p, p_hexstring, MAXN);
