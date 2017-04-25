@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <gmp.h>
 #include "sha256.h"
+#include <math.h>
 
 
 //hex, int, char conversion functions
@@ -64,7 +65,7 @@ void print_hash(unsigned char hash[])
 }
 
 //outputs the hashed value
-char * hashMessage(char * message) {
+char * hashMessage(char * message, char * param_string_n) {
     int str_len = strlen(message);
     long hashmaxlen = 2.305843e18;
 
@@ -81,19 +82,40 @@ char * hashMessage(char * message) {
 
     //page 31 Step 3. 
     //H = Hash(M')
-	//unsigned char hash[SHA256_BLOCK_SIZE];
+    //unsigned char hash[SHA256_BLOCK_SIZE];
     unsigned char * hash = malloc(SHA256_BLOCK_SIZE);
-	SHA256_CTX ctx;
-	sha256_init(&ctx);
-	sha256_update(&ctx,bit_string_message,strlen(bit_string_message));
-	sha256_final(&ctx,hash);
+    SHA256_CTX ctx;
+    sha256_init(&ctx);
+    sha256_update(&ctx,bit_string_message,strlen(bit_string_message));
+    sha256_final(&ctx,hash);
     //print_hash(hash);
 
     //page 45 Step 5: deriving an integer e from H (but we're calculating using char arrays, so we will leave the output in hex)
+    //192 < 256 not needed for our current curve
+    /*
+    double hash_len = strlen(hash);
+    double comparison = pow(2.0, (8*hash_len)); 
+    int c = (double) comparison; 
+    printf("%08x\n", c); 
 
+    //5.2: we're comparing n >= 2^(8*hashlen)    
+    mpz_t n_mpf; 
+    mpz_init(n_mpf);
+    mpz_set_str(n_mpf, "115792089237316195423570985008687907853269984665640564039457584007913129639936", 10);
+    gmp_printf("%i\n", n_mpf); 
 
-	return hash;
-	
+    mpz_t param_n;
+    mpz_init(param_n);
+    mpz_set_str(param_n, param_string_n, 16);
+
+    gmp_printf("%Zx\n", param_n);
+
+    mpz_clear(param_n);
+    mpz_clear(n_mpf);
+    */
+
+    return hash;
+    
 }
 
 void generate_big_num(int size, int num_bignums) {
@@ -136,8 +158,13 @@ char * bit_string_to_octet_string_conversion() {
 
 int main(int argc,char *argv[]) {
     //SHA256 can only hash strings of length less than hashmaxlen = (2^61)-1 = 2.305843e18
-	char * result = hashMessage("hello"); 
-    generate_big_num(48*4, 4);
+    
+    //generate_big_num(48*4, 4);
 
-	return 0;
+    char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
+    char * result = hashMessage("hello", param_string_n); 
+    print_hash(result); 
+
+
+    return 0;
 }

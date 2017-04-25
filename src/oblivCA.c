@@ -25,6 +25,9 @@ int main(int argc,char *argv[]){
   const unsigned char *rand_key_1 = "\x65\xdd\x53\x5f\x47\x7e\xb8\x83\xd1\x61\xd0\xb9\xbe\x00\x45\xe8\x48\x13\xc6\x6d\x74\x0c\xed\x23";
   const unsigned char *rand_key_2 = "\xf8\x9c\x26\x52\x91\x67\x4f\x65\x6c\x22\x18\x67\x62\x74\xd7\x17\x94\xe9\x5b\xa8\x27\x0b\x2f\xa4";
   const unsigned char *rand_key_3 = "\x9c\xb2\x2f\xa7\xd4\x5c\x9b\x15\xeb\xaf\x26\x76\x58\x75\xa5\x8e\x56\x4b\x7e\x60\x16\xc2\x1d\x2f";
+
+  const unsigned char * e_hexstring = "\x0d\x80\xb4\x91\x9e\x2e\xdb\x5e\x1b\xa3\xe6\x19\xe8\xb6\x0b\xfa\xd2\x5d\x16\xc4\xde\xec\x05\xa7\xe1\xb6\x65\xce\x85\x54\xb3\xcf"; 
+  //this is the e you need in step 6. Right now, it's only the hash of "hello". Working on the cert gen now. Will update this value
   
   io.private_key_share1 = (char *) malloc(MAXN);
   io.private_key_share2 = (char *) malloc(MAXN);
@@ -37,6 +40,7 @@ int main(int argc,char *argv[]){
   io.h = (char *) malloc(1);
   io.a = (char *) malloc(MAXN);
   io.b = (char *) malloc(MAXN);
+  io.e = (char *) malloc(E_LENGTH);
 
   //protocolUseStdio(&pd);
 
@@ -64,6 +68,7 @@ int main(int argc,char *argv[]){
   memcpy(io.g_x, g_x_hexstring, MAXN);
   memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
+  memcpy(io.e, e_hexstring, E_LENGTH);
   memcpy(io.h, h_hexstring, 1);
 
   start = clock();

@@ -5,6 +5,7 @@
 #include <obig.oh>
 
 #define MAXN 24
+#define E_LENGTH 32
 
 typedef struct curve{
   obig p;
@@ -30,6 +31,7 @@ typedef struct protocolIO{
   char * g_x, * g_y;
   char * n;
   char * h;
+  char * e;
   unsigned output_r; 
   char * output; 
   bool * tempBool; 
