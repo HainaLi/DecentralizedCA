@@ -4,7 +4,7 @@
 #include <obliv.oh>
 #include <obig.oh>
 
-#define MAXN 48
+#define MAXN 24
 
 typedef struct curve{
   obig p;
@@ -31,7 +31,7 @@ typedef struct protocolIO{
   char * n;
   char * h;
   unsigned output_r; 
-  int * output; 
+  char * output; 
   bool * tempBool; 
 
 }protocolIO;

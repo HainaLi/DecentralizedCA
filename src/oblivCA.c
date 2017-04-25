@@ -34,7 +34,7 @@ int main(int argc,char *argv[]){
   io.g_x = (char *) malloc(MAXN);
   io.g_y = (char *) malloc(MAXN);
   io.n = (char *) malloc(MAXN);
-  io.h = (char *) malloc(MAXN);
+  io.h = (char *) malloc(1);
   io.a = (char *) malloc(MAXN);
   io.b = (char *) malloc(MAXN);
 
@@ -64,7 +64,7 @@ int main(int argc,char *argv[]){
   memcpy(io.g_x, g_x_hexstring, MAXN);
   memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
-  memcpy(io.h, h_hexstring, MAXN);
+  memcpy(io.h, h_hexstring, 1);
 
   start = clock();
   //setCurrentParty(&pd,argv[1][0]=='1'?1:2);
@@ -80,7 +80,8 @@ int main(int argc,char *argv[]){
 
   //fprintf(stderr,"\nComputation output: %d\n", io.output);
   //fprintf(stderr,"\nPrivate key: %s\n", io.private_key);
-  fprintf(stderr,"\noutput_r: %s\n", io.output_r);
+  for(int i = 0; i < 5; i++)
+    fprintf(stderr,"\noutput: \\x%02x\n", io.output[i]);
   fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);
 
   /*
