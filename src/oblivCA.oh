@@ -5,7 +5,7 @@
 #include <obig.oh>
 
 #define MAXN 24
-#define E_LENGTH 32
+#define E_LENGTH 24
 
 typedef struct curve{
   obig p;
