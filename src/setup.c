@@ -95,6 +95,7 @@ char * hashMessage(char * message, int log_2_n) {
     //ceiling(log2n) >= 8*haslen -> output hash
     
     int hash_len = strlen(hash);
+
     int comparison = 8*hash_len; 
 
     if (log_2_n < comparison) {
@@ -178,8 +179,35 @@ int main(int argc,char *argv[]) {
     //generate_big_num(48*4, 4);
 
     char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
-    int log2n = 256; 
-    hashMessage("hello", log2n); 
+    int log2n = 192; 
+
+    //read file
+
+    FILE *fp;
+    long lSize;
+    char *buffer;
+
+    fp = fopen ( "../certificates/sample_tbscertificate.txt" , "rb" );
+    if( !fp ) perror("../certificates/sample_tbscertificate.txt"),exit(1);
+
+    fseek( fp , 0L , SEEK_END);
+    lSize = ftell( fp );
+    rewind( fp );
+
+    /* allocate memory for entire content */
+    buffer = calloc( 1, lSize+1 );
+    if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
+
+    /* copy the file into the buffer */
+    if( 1!=fread( buffer , lSize, 1 , fp) )
+      fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
+
+    /* do your work here, buffer is a string contains the whole text */
+
+    fclose(fp);
+    free(buffer);
+    printf("%s\n", buffer);
+    hashMessage(buffer, log2n); 
     
 
 
