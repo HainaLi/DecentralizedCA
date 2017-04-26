@@ -90,11 +90,11 @@ int main(int argc,char *argv[]){
 
   fprintf(stderr, "\nr is :\n");
   for(int i = 0; i < MAXN; i++)
-    fprintf(stderr,"\noutput: \\x%02x\n", io.r[i]);
+    fprintf(stderr,"\nr[%d]: \\x%02x\n", i, io.r[i]);
   fprintf(stderr, "\ns is :\n");
   for(int i = 0; i < MAXN; i++)
-    fprintf(stderr,"\noutput: \\x%02x\n", io.s[i]);
-  fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);  
+    fprintf(stderr,"\ns[%d]: \\x%02x\n", i, io.s[i]);
+  fprintf(stderr, "\nobig_div_mod(g_x, n)%d\n", io.tempBool); 
   }
   return 0;
 }
