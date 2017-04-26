@@ -330,14 +330,12 @@ void signCertificate(void* args){
   //1. Select an integer d [1, n-1]
   obig_xor(&pk, pk1, pk2);
   obig_xor(&k, kk1, kk2);
-  fprintf(stderr,"\nStep 1 complete....\n");
+
   //2. Compute Q=dG
   curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
-  fprintf(stderr,"\nPublic key generated....\n");
   curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
-  fprintf(stderr,"\nStep 2 complete....\n");
-  //3: r = Q_x mod n
-  
+
+  //3: r = Q_x mod n  
   obliv bool success = obig_div_mod(&tmp, &r, R_x, n_o);
   revealOblivBool(&io->tempBool, success, 0); 
     
