@@ -28,7 +28,7 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
   obig *newtref = &newt;
   obig *tmpref = &tmp;
 
-  int maxiter = 100;
+  int maxiter = 200;
   while(maxiter--){
     obliv if(obig_cmp(newr, zero) != 0)
     {
@@ -66,18 +66,16 @@ resx = lambda^2 - 2x
 resy = lambda(x - resx) - y
 */
 void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv{
-  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, num_mod, den_mod, tmp, tt, final_x, final_y;
+  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, tmp, tt, final_x, final_y;
   ~obliv(en) {
-  obig_init(&lambda, MAXN);
+  obig_init(&lambda, 2*MAXN);
   obig_init(&lambda_mod, MAXN);
-  obig_init(&lambda2, MAXN);
+  obig_init(&lambda2, 2*MAXN);
   obig_init(&lambda2_mod, MAXN);
-  obig_init(&x2, MAXN);
+  obig_init(&x2, 2*MAXN);
   obig_init(&x2_mod, MAXN);
   obig_init(&num, MAXN);
   obig_init(&den, MAXN);
-  obig_init(&num_mod, MAXN);
-  obig_init(&den_mod, MAXN);
   obig_init(&tmp, MAXN);
   obig_init(&tt, MAXN);
   obig_init(&zero, MAXN);
@@ -85,38 +83,51 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_init(&final_x, MAXN);
   obig_init(&final_y, MAXN);
   
+  obig *numref = &num;
+  obig *denref = &den;
+  obig *final_xref = &final_x;
+  obig *ttref =&tt;
+
   obig_mul(&x2, px, px);
   obig_div_mod(&tmp, &x2_mod, x2, p);
 
   obig_add(&num, x2_mod, x2_mod);
+  obliv if(obig_cmp(num, p) >= 0)
+    obig_sub(numref, num, p);
   obig_add(&num, num, x2_mod);
+  obliv if(obig_cmp(num, p) >= 0)
+    obig_sub(numref, num, p);
   obig_add(&num, num, a);
-  obig_div_mod(&tmp, &num_mod, num, p);
+  obliv if(obig_cmp(num, p) >= 0)
+    obig_sub(numref, num, p);
 
   obig_add(&den, py, py);
-  obig_div_mod(&tmp, &den_mod, den, p);
+  obliv if(obig_cmp(den, p) >= 0)
+    obig_sub(denref, den, p);
 
-  mult_inverse(&den_mod, den_mod, p);
-  obig_mul(&lambda, num_mod, den_mod);
+  mult_inverse(&den, den, p);
+  obig_mul(&lambda, num, den);
   obig_div_mod(&tmp, &lambda_mod, lambda, p);
 
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
 
-  obig_add(&lambda2_mod, lambda2_mod, p);
-  obig_sub(&final_x, lambda2_mod, px);
-  obig_add(&final_x, final_x, p);
-  obig_sub(&final_x, final_x, px);
-  obig_div_mod(&tmp, resx, final_x, p);
+  obig_sub_signed(&final_x, lambda2_mod, px);
+  obliv if(obig_cmp(final_x, zero) < 0)
+    obig_add(final_xref, final_x, p);
+  obig_sub_signed(resx, final_x, px);
+  obliv if(obig_cmp(*resx, zero) < 0)
+    obig_add(resx, *resx, p);
 
-  obig_add(&px, px, p);
   obig_sub(&tt, px, *resx);
+  obliv if(obig_cmp(tt, zero) < 0)
+    obig_add(ttref, tt, p);
   
-  obig_mul(&tt, lambda_mod, tt);
-  obig_div_mod(&tmp, &final_y, tt, p);
-  obig_add(&final_y, final_y, p);
-  obig_sub(&final_y, final_y, py);
-  obig_div_mod(&tmp, resy, final_y, p);
+  obig_mul(&lambda, lambda_mod, tt);
+  obig_div_mod(&tmp, &final_y, lambda, p);
+  obig_sub_signed(resy, final_y, py);
+  obliv if(obig_cmp(*resy, zero) < 0)
+    obig_add(resy, *resy, p);
 
   obig_free(&x2);
   obig_free(&x2_mod);
@@ -126,8 +137,6 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_free(&lambda2_mod);
   obig_free(&num);
   obig_free(&den);
-  obig_free(&num_mod);
-  obig_free(&den_mod);
   obig_free(&tmp);
   obig_free(&tt);
   obig_free(&zero);
@@ -142,16 +151,14 @@ resx = lambda^2 - xp - xq
 resy = lambda(x - resx) - y
 */
 void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv{
-  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, num, den, num_mod, den_mod, tt, tmp, final_x, final_y;
+  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, num, den, tt, tmp, final_x, final_y;
   ~obliv(en) {
-  obig_init(&lambda, MAXN);
+  obig_init(&lambda, 2*MAXN);
   obig_init(&lambda_mod, MAXN);
-  obig_init(&lambda2, MAXN);
+  obig_init(&lambda2, 2*MAXN);
   obig_init(&lambda2_mod, MAXN);
   obig_init(&num, MAXN);
   obig_init(&den, MAXN);
-  obig_init(&num_mod, MAXN);
-  obig_init(&den_mod, MAXN);
   obig_init(&tt, MAXN);
   obig_init(&tmp, MAXN);
   obig_init(&zero, MAXN);
@@ -159,36 +166,42 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_init(&final_x, MAXN);
   obig_init(&final_y, MAXN);
   
+  obig *numref = &num;
+  obig *denref = &den;
+  obig *final_xref = &final_x;
+  obig *ttref =&tt;
 
-  obig_add(&qy, qy, p);
-  obig_sub(&num, qy, py);
-  obig_div_mod(&tmp, &num_mod, num, p);
+  obig_sub_signed(&num, qy, py);
+  obliv if(obig_cmp(num, zero) < 0)
+    obig_add(numref, num, p);
 
-  obig_add(&qx, qx, p);
-  obig_sub(&den, qx, px);
-  obig_div_mod(&tmp, &den_mod, den, p);
+  obig_sub_signed(&den, qx, px);
+  obliv if(obig_cmp(den, zero) < 0)
+    obig_add(denref, den, p);
 
-  mult_inverse(&den_mod, den_mod, p);
-  obig_mul(&lambda, num_mod, den_mod);
+  mult_inverse(&den, den, p);
+  obig_mul(&lambda, num, den);
   obig_div_mod(&tmp, &lambda_mod, lambda, p);
 
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
   
-  obig_add(&lambda2_mod, lambda2_mod, p);
-  obig_sub(&final_x, lambda2_mod, px);
-  obig_add(&final_x, final_x, p);
-  obig_sub(&final_x, final_x, qx);
-  obig_div_mod(&tmp, resx, final_x, p);
+  obig_sub_signed(&final_x, lambda2_mod, px);
+  obliv if(obig_cmp(final_x, zero) < 0)
+    obig_add(final_xref, final_x, p);
+  obig_sub_signed(resx, final_x, qx);
+  obliv if(obig_cmp(*resx, zero) < 0)
+    obig_add(resx, *resx, p);
 
-  obig_add(&px, px, p);
-  obig_sub(&tt, px, *resx);
+  obig_sub_signed(&tt, px, *resx);
+  obliv if(obig_cmp(tt, zero) < 0)
+    obig_add(ttref, tt, p);
   
-  obig_mul(&tt, lambda_mod, tt);
-  obig_div_mod(&tmp, &final_y, tt, p);
-  obig_add(&final_y, final_y, p);
-  obig_sub(&final_y, final_y, py);
-  obig_div_mod(&tmp, resy, final_y, p);
+  obig_mul(&lambda, lambda_mod, tt);
+  obig_div_mod(&tmp, &final_y, lambda, p);
+  obig_sub_signed(resy, final_y, py);
+  obliv if(obig_cmp(*resy, zero) < 0)
+    obig_add(resy, *resy, p);
 
   obig_free(&lambda);
   obig_free(&lambda_mod);
@@ -196,8 +209,6 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_free(&lambda2_mod);
   obig_free(&num);
   obig_free(&den);
-  obig_free(&num_mod);
-  obig_free(&den_mod);
   obig_free(&tt);
   obig_free(&tmp);
   obig_free(&zero);
@@ -334,7 +345,7 @@ void signCertificate(void* args){
   obig_init(&zero_o, MAXN);
   obig_zero(&zero_o); 
   obliv int8_t r_comp_result = obig_cmp(zero_o, r);
- 
+  revealOblivInt(&io->RisZero, r_comp_result, 0);
 
   //7. s = k^-1 (e + rd) mod n
   mult_inverse(&k_inverse, k, n_o);
@@ -346,6 +357,7 @@ void signCertificate(void* args){
 
   //Check whether s is zero
   obliv int8_t s_comp_result = obig_cmp(zero_o, s);
+  revealOblivInt(&io->SisZero, s_comp_result, 0);
 
   for(int ii = 0; ii < r.digits; ii++)
     revealOblivChar(&io->r[ii], r.data[ii], 0);

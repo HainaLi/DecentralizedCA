@@ -31,10 +31,10 @@ int main(int argc,char *argv[]){
   //"\x0d\x80\xb4\x91\x9e\x2e\xdb\x5e\x1b\xa3\xe6\x19\xe8\xb6\x0b\xfa\xd2\x5d\x16\xc4\xde\xec\x05\xa7"; 
   
   
-  io.private_key_share1 = (char *) malloc(MAXN/2);
-  io.private_key_share2 = (char *) malloc(MAXN/2);
-  io.k1 = (char *) malloc(MAXN/2);
-  io.k2 = (char *) malloc(MAXN/2);
+  io.private_key_share1 = (char *) malloc(MAXN);
+  io.private_key_share2 = (char *) malloc(MAXN);
+  io.k1 = (char *) malloc(MAXN);
+  io.k2 = (char *) malloc(MAXN);
   io.p = (char *) malloc(MAXN);
   io.g_x = (char *) malloc(MAXN);
   io.g_y = (char *) malloc(MAXN);
@@ -54,13 +54,13 @@ int main(int argc,char *argv[]){
   ocTestUtilTcpOrDie(&pd,remote_host,argv[1]);
 
   if(party == 1){
-    memcpy(io.private_key_share1, rand_key_0, MAXN/2); // cryptographically generate this
-    memcpy(io.k1, rand_key_1, MAXN/2);  // cryptographically generate this
+    memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
+    memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
   }
 
   else if (party == 2){
-    memcpy(io.private_key_share2, rand_key_2, MAXN/2); // cryptographically generate this
-    memcpy(io.k2, rand_key_3, MAXN/2);  // cryptographically generate this
+    memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
+    memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
   }
 
   memcpy(io.p, p_hexstring, MAXN);
@@ -83,6 +83,11 @@ int main(int argc,char *argv[]){
   fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
   //fprintf(stderr,"\nNumber of Gates: %u\n", gates);
 
+  if(party == 1)
+  {
+  fprintf(stderr, "\nresult of r computation is :\t%d\n",io.RisZero);
+  fprintf(stderr, "\nresult of s computation is :\t%d\n",io.SisZero);
+
   fprintf(stderr, "\nr is :\n");
   for(int i = 0; i < MAXN; i++)
     fprintf(stderr,"\noutput: \\x%02x\n", io.r[i]);
@@ -90,6 +95,6 @@ int main(int argc,char *argv[]){
   for(int i = 0; i < MAXN; i++)
     fprintf(stderr,"\noutput: \\x%02x\n", io.s[i]);
   fprintf(stderr, "obig_div_mod(g_x, n)%d\n", io.tempBool);  
-
+  }
   return 0;
 }

@@ -4,8 +4,8 @@
 #include <obliv.oh>
 #include <obig.oh>
 
-#define MAXN 48
-#define E_LENGTH 48
+#define MAXN 24
+#define E_LENGTH 24
 
 typedef struct curve{
   obig p;
