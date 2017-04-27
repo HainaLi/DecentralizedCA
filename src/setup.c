@@ -4,6 +4,7 @@
 #include <memory.h>
 #include <gmp.h>
 #include "sha256.h"
+#include <time.h>
 
 
 
@@ -22,6 +23,21 @@ int hex_to_ascii(char c, char d){
         return high+low;
 }
 
+int ascii_to_hex(char c)
+{
+        int num = (int) c;
+        printf("ascii to hex: %i", num);
+        if(num < 58 && num > 47)
+        {
+                return num - 48; 
+        }
+        if(num < 103 && num > 96)
+        {
+                return num - 87;
+        }
+        return num;
+}
+
 void hex_string_to_char_array(const char * hex_string) {
   int length = strlen(hex_string);
   int i;
@@ -29,13 +45,36 @@ void hex_string_to_char_array(const char * hex_string) {
   
   for(i = 0; i < length; i++){
     if(i % 2 != 0){
-      printf("%i\n", hex_to_ascii(buf, hex_string[i]));
+      printf("\\x%hhX", hex_to_ascii(buf, hex_string[i]));
   
     }else{
       buf = hex_string[i];
     }
   }
 
+}
+
+void write_hex_string_to_char_array(const char * hex_string1, char* filename) {
+    int length = strlen(hex_string1);
+    int i;
+    char buf = 0;
+    FILE *f = fopen(filename, "w");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }  
+    for(i = 0; i < length; i++){
+        if(i % 2 != 0){
+          fprintf(f, "%02hhX", hex_to_ascii(buf, hex_string1[i]));
+
+        }else{
+          buf = hex_string1[i];
+        }
+    }
+
+
+    fclose(f);
 }
 
 char* stringToBinary(char* s) {
@@ -60,7 +99,8 @@ void print_hash(unsigned char hash[], int length)
 {
    int idx;
    for (idx=0; idx < length; idx++)
-      printf("%02x",hash[idx]);
+      //printf("%02x",hash[idx]);
+    printf("x%02x",hash[idx]);
    printf("\n");
 }
 
@@ -134,26 +174,53 @@ char * hashMessage(char * message, int log_2_n) {
     
     
 }
+/* Prepends t into s. Assumes s has enough space allocated
+** for the combined string.
+*/
+void prepend(char* s, const char* t)
+{
+    size_t len = strlen(t);
+    size_t i;
 
-void generate_big_num(int size, int num_bignums) {
+    memmove(s + len, s, strlen(s) + 1);
+
+    for (i = 0; i < len; ++i)
+    {
+        s[i] = t[i];
+    }
+}
+
+
+char * generate_big_num(int size) {
     mpz_t rand_Num;
-    unsigned long int i, seed;
+    unsigned long int i;
     gmp_randstate_t r_state;
 
-    seed = 123456;
+    srand(time(NULL));   // should only be called once
+    unsigned long int seed = rand() % 10000;      // so the seed doesn't get too big
+    //seed = 1236;
+    //printf("%i\n", seed);
 
     gmp_randinit_default (r_state);
     gmp_randseed_ui(r_state, seed);
 
     mpz_init(rand_Num);
 
-    for(i = 0; i < num_bignums; ++i) {
-       mpz_urandomb(rand_Num,r_state,size);
-       gmp_printf("%Zx\n", rand_Num);
+    mpz_urandomb(rand_Num,r_state,size);
+    //gmp_printf("%Zx\n", rand_Num);
+    char * rand_char = mpz_get_str(NULL, 16, rand_Num);
+    int rand_length = strlen(rand_char);
+    //printf("%i\n", strlen(rand_char));
+    char *final = malloc(48);  
+    strcpy(final, rand_char);
+    for(int i=rand_length;i<=48;i++){
+        strcpy(final, final);
+        prepend(final, "0");
     }
-
+    free(rand_char);
     gmp_randclear(r_state);
     mpz_clear(rand_Num);  
+    return final; 
 
 }
 
@@ -172,42 +239,67 @@ char * bit_string_to_octet_string_conversion() {
 }
 */
 
+char * read_hex_file(char * file_name) {
+    int hex_length = 48; 
+    FILE *fp = fopen(file_name,"r");
+    unsigned char c1,c2;
+    int i=0;
+    unsigned char sum;
+    //static unsigned char final_hex[hex_length/2];
+    char * final_hex = (char *) malloc(hex_length/2);
+    for(i=0;i<hex_length/2;i++)
+    {
+            c1 = hex_to_int(fgetc(fp));
+            c2 = hex_to_int(fgetc(fp));
+            
+            sum = c1<<4 | c2;
+            final_hex[i] = sum;
+            //printf("%i ",sum);
+    }
+    //printf("\n");
+    fclose(fp);
+    return final_hex; 
+
+}
 
 int main(int argc,char *argv[]) {
     //SHA256 can only hash strings of length less than hashmaxlen = (2^61)-1 = 2.305843e18
     
-    //generate_big_num(48*4, 4);
+    printf("Generating random big numbers...\n");
+    char * rand0 = generate_big_num(48*4);
+    unsigned int retTime = time(0) + 1;   // Get finishing time.
+    while (time(0) < retTime); 
+    char * rand1 = generate_big_num(48*4);
+    //printf("%c\n", rand0[0]);
+    //printf("%c\n", rand1[0]);
 
-    char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
+    printf("Printing random big numbers out to rand_key0.txt and rand_key_1.txt...\n");
+    //char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
+    write_hex_string_to_char_array(rand0, "rand_key0.txt"); 
+    write_hex_string_to_char_array(rand1, "rand_key1.txt"); 
     int log2n = 192; 
 
-    //read file
+    //char * tbscertificate = "../certificates/sample_tbscertificate.txt";
+    //char * keys_file = "rand_keys.txt";
 
-    FILE *fp;
-    long lSize;
-    char *buffer;
+    char * key0 = read_hex_file("rand_key0.txt"); 
+    char * key1 = read_hex_file("rand_key1.txt"); 
+    //printf("%02hhX\n", key0[0]);
+    //printf("%02hhX\n", key1[0]);
 
-    fp = fopen ( "../certificates/sample_tbscertificate.txt" , "rb" );
-    if( !fp ) perror("../certificates/sample_tbscertificate.txt"),exit(1);
+    free(rand0);
+    free(rand1); 
+    free(key0);
+    free(key1);
 
-    fseek( fp , 0L , SEEK_END);
-    lSize = ftell( fp );
-    rewind( fp );
+    
 
-    /* allocate memory for entire content */
-    buffer = calloc( 1, lSize+1 );
-    if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
+    
+    /*
 
-    /* copy the file into the buffer */
-    if( 1!=fread( buffer , lSize, 1 , fp) )
-      fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
-
-    /* do your work here, buffer is a string contains the whole text */
-
-    fclose(fp);
-    free(buffer);
-    printf("%s\n", buffer);
     hashMessage(buffer, log2n); 
+    */
+    
     
 
 

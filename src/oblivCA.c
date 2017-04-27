@@ -6,11 +6,13 @@
 
 
 int main(int argc,char *argv[]){
+
   ProtocolDesc pd;
   protocolIO io;
   clock_t start, end;
   double cpu_time_used;
   int party;
+  
 
   //input curve parameters: secp192k1
   const unsigned char * p_hexstring = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFE\xFF\xFF\xEE\x37"; //{255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,254,255,255,238,55}; 
@@ -22,9 +24,14 @@ int main(int argc,char *argv[]){
   const unsigned char *h_hexstring = "\x01";      
   
   const unsigned char *rand_key_0 = "\xeb\xb1\x25\xa0\xcd\x2f\xea\x04\x68\x7f\x5e\x96\xa5\x7d\x60\x05\xb4\xde\x2c\x1d\x88\x51\xb8\x88";
-  const unsigned char *rand_key_1 = "\x65\xdd\x53\x5f\x47\x7e\xb8\x83\xd1\x61\xd0\xb9\xbe\x00\x45\xe8\x48\x13\xc6\x6d\x74\x0c\xed\x23";
+  //const unsigned char *rand_key_1 = "\x65\xdd\x53\x5f\x47\x7e\xb8\x83\xd1\x61\xd0\xb9\xbe\x00\x45\xe8\x48\x13\xc6\x6d\x74\x0c\xed\x23";
   const unsigned char *rand_key_2 = "\xf8\x9c\x26\x52\x91\x67\x4f\x65\x6c\x22\x18\x67\x62\x74\xd7\x17\x94\xe9\x5b\xa8\x27\x0b\x2f\xa4";
-  const unsigned char *rand_key_3 = "\x9c\xb2\x2f\xa7\xd4\x5c\x9b\x15\xeb\xaf\x26\x76\x58\x75\xa5\x8e\x56\x4b\x7e\x60\x16\xc2\x1d\x2f";
+  //const unsigned char *rand_key_3 = "\x9c\xb2\x2f\xa7\xd4\x5c\x9b\x15\xeb\xaf\x26\x76\x58\x75\xa5\x8e\x56\x4b\x7e\x60\x16\xc2\x1d\x2f";
+  
+  //key1 and key3 are used as k1 and k2
+  char * rand_key_1 = read_hex_file("rand_key0.txt"); 
+  char * rand_key_3 = read_hex_file("rand_key1.txt"); 
+  //printf("%02hhX\n", rand_key_1[0]);
 
   const unsigned char * e_hexstring = "\xa8\x55\x56\xcd\x83\x51\x51\x33\xf9\xee\x46\x74\xb7\xec\xbc\x12\x35\xaf\xc3\x2a\x21\xbc\x67\x11";
   //this is the e (hashed value of a template TBSCertificate (to be signed))
@@ -44,7 +51,7 @@ int main(int argc,char *argv[]){
   io.b = (char *) malloc(MAXN);
   io.e = (char *) malloc(E_LENGTH);
 
-
+  
   if(strcmp(argv[2],"--")==0)
     party = 1;
   else
@@ -96,5 +103,6 @@ int main(int argc,char *argv[]){
     fprintf(stderr,"\ns[%d]: \\x%02x\n", i, io.s[i]);
   fprintf(stderr, "\nobig_div_mod(g_x, n)%d\n", io.tempBool); 
   }
+  
   return 0;
 }
