@@ -4,8 +4,8 @@
 #include <obliv.oh>
 #include <obig.oh>
 
-#define MAXN 24
-#define E_LENGTH 24
+#define MAXN 2
+#define E_LENGTH 2
 
 typedef struct curve{
   obig p;
@@ -17,24 +17,25 @@ typedef struct curve{
 }curve;
 
 typedef struct protocolIO{
-  char * private_key_share1;
-  char * private_key_share2;
-  char * k1;
-  char * k2;
-  char * private_key;
-  char * public_key;
-  char * msg;
-  char * cert;
-  char * p;
-  char * a;
-  char * b;
-  char * g_x, * g_y;
-  char * n;
-  char * h;
-  char * e;
-  char * r;
-  char * s;
+  unsigned char * private_key_share1;
+  unsigned char * private_key_share2;
+  unsigned char * k1;
+  unsigned char * k2;
+  unsigned char * private_key;
+  unsigned char * public_key;
+  unsigned char * msg;
+  unsigned char * cert;
+  unsigned char * p;
+  unsigned char * a;
+  unsigned char * b;
+  unsigned char * g_x, * g_y;
+  unsigned char * n;
+  unsigned char * h;
+  unsigned char * e;
+  unsigned char * r;
+  unsigned char * s;
   bool * tempBool;
+  int RisZero, SisZero;
 }protocolIO;
 
 void signCertificate(void* args);

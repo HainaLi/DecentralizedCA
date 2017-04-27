@@ -10,7 +10,7 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
   obig_init(&newt, MAXN);
   obig_init(&newr, MAXN);
   obig_init(&q, MAXN);
-  obig_init(&rem, MAXN);
+  obig_init(&rem, 2*MAXN);
   obig_init(&tmp, MAXN);
   obig_init(&zero, MAXN);
 
@@ -28,20 +28,19 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
   obig *newtref = &newt;
   obig *tmpref = &tmp;
 
-  int maxiter = 200;
+  int maxiter = MAXN*8;
   while(maxiter--){
-    obliv if(obig_cmp(newr, zero) != 0)
-    {
-    
-    obig_div_mod(qref, remref, r, newr);
+    obliv if(obig_cmp(newr, zero) != 0){
 
-    obig_copy(rref, newr);
-    obig_copy(newrref, rem);
-    obig_copy(tmpref, newt);
+      obig_div_mod(qref, remref, r, newr);
 
-    obig_mul_signed(remref, q, newt);
-    obig_sub_signed(newtref, t, rem);
-    obig_copy(tref, tmp);
+      obig_copy(rref, newr);
+      obig_copy(newrref, rem);
+      obig_copy(tmpref, newt);
+
+      obig_mul_signed(remref, q, newt);
+      obig_sub_signed(newtref, t, rem);
+      obig_copy(tref, tmp);
     }
   }
   obliv if(obig_cmp(t, zero) < 0)
@@ -271,12 +270,12 @@ void signCertificate(void* args){
   obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, Q_x, Q_y, R_x, R_y, zero_o;
   obig p_o, g_x_o, g_y_o, n_o, a_o, e_o;
   obig tmp, r, k_inverse, interim, interim_mod, s;
-  obliv char k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
-  obliv char p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
-  io->private_key = (char *) malloc(MAXN);
+  obliv unsigned char k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
+  obliv unsigned char p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
+  io->private_key = (unsigned char *) malloc(MAXN);
 
-  io->s = (char *) malloc(MAXN);
-  io->r = (char *) malloc(MAXN);
+  io->s = (unsigned char *) malloc(MAXN);
+  io->r = (unsigned char *) malloc(MAXN);
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
@@ -332,21 +331,24 @@ void signCertificate(void* args){
   obig_xor(&k, kk1, kk2);
 
   //2. Compute Q=dG
-  curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
-  curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
+  //curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
+/*  curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
 
   //3: r = Q_x mod n  
   obliv bool success = obig_div_mod(&tmp, &r, R_x, n_o);
-  revealOblivBool(&io->tempBool, success, 0); 
+  revealOblivBool(&io->tempBool, success, 0);
     
-  //Check whether r is zero  
+  //Check whether r is zero
   obig_init(&zero_o, MAXN);
   obig_zero(&zero_o); 
-  obliv int8_t r_comp_result = obig_cmp(zero_o, r);
+  obliv int8_t r_comp_result = obig_cmp(r, zero_o);
   revealOblivInt(&io->RisZero, r_comp_result, 0);
-
+*/
   //7. s = k^-1 (e + rd) mod n
-  mult_inverse(&k_inverse, k, n_o);
+//  mult_inverse(&k_inverse, kk1, n_o);
+  obig_add(&k_inverse, n_o, kk1);
+  //revealOblivBool(&io->tempBool, success, 0);
+/*
   obig_mul(&interim, r, pk);
   obig_add(&interim, e_o, interim);
   obig_div_mod(&tmp, &interim_mod, interim, n_o);
@@ -354,14 +356,14 @@ void signCertificate(void* args){
   obig_div_mod(&tmp, &s, interim, n_o);
 
   //Check whether s is zero
-  obliv int8_t s_comp_result = obig_cmp(zero_o, s);
+  obliv int8_t s_comp_result = obig_cmp(s, zero_o);
   revealOblivInt(&io->SisZero, s_comp_result, 0);
+*/
+  for(int ii = 0; ii < k.digits; ii++)
+    revealOblivChar(&io->r[ii], kk1.data[ii], 0);
 
-  for(int ii = 0; ii < r.digits; ii++)
-    revealOblivChar(&io->r[ii], r.data[ii], 0);
-
-  for(int ii = 0; ii < s.digits; ii++)
-    revealOblivChar(&io->s[ii], s.data[ii], 0);
+  for(int ii = 0; ii < k_inverse.digits; ii++)
+    revealOblivChar(&io->s[ii], k_inverse.data[ii], 0);
 
   obig_free(&pk1);
   obig_free(&pk2);
