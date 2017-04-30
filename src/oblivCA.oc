@@ -1,16 +1,36 @@
 #include "oblivCA.oh"
 #include <stdio.h>
 
+//#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
+
+void my_obig_import_opointed(obig* x, obliv uint8_t* p, size_t s) obliv {
+	for (size_t ii = 0; ii < x->digits; ii++) {
+		if (ii < s) {
+//			if (IS_BIG_ENDIAN) {
+//                              ~obliv(en){fprintf(stderr, "\nBIG ENDIAN");}
+				x->data[x->digits - 1 - ii] = p[ii];
+//			} else {
+//				x->data[ii] = p[ii];
+//			}
+		} else {
+			x->data[ii] = 0;
+		}
+	}
+}
+
 // Extended Euclid's Algorithm for Multiplicative Inverse
 void mult_inverse(obig *out, obig A, obig M) obliv{
   obig t, r, newt, newr, q, zero, tmp, rem;
+  obliv bool tsign = false;
+  obliv bool tmpsign = false;
+  obliv bool newtsign = false;
   ~obliv(en) {
   obig_init(&t, MAXN);
   obig_init(&r, MAXN);
   obig_init(&newt, MAXN);
   obig_init(&newr, MAXN);
   obig_init(&q, MAXN);
-  obig_init(&rem, 2*MAXN);
+  obig_init(&rem, MAXN);
   obig_init(&tmp, MAXN);
   obig_init(&zero, MAXN);
 
@@ -36,15 +56,32 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
 
       obig_copy(rref, newr);
       obig_copy(newrref, rem);
-      obig_copy(tmpref, newt);
 
-      obig_mul_signed(remref, q, newt);
-      obig_sub_signed(newtref, t, rem);
+      obig_copy(tmpref, newt);
+      tmpsign = newtsign;
+
+      obig_mul(remref, q, newt);
+
+      obliv if(tsign == newtsign){
+        obliv if(obig_cmp(rem, t) > 0){
+          newtsign = !newtsign;
+          obig_sub(newtref, rem, t);
+        }
+        obliv if(obig_cmp(rem, t) <= 0)
+          obig_sub(newtref, t, rem);
+      }
+
+      obliv if(tsign != newtsign){
+        newtsign = !newtsign;
+        obig_add(newtref, t, rem);
+      }
+
       obig_copy(tref, tmp);
+      tsign = tmpsign;
     }
   }
-  obliv if(obig_cmp(t, zero) < 0)
-    obig_add(tref, t, M);
+  obliv if(tsign == true)
+    obig_sub(tref, M, t);
 
   obig_copy(out, t);
   
@@ -270,12 +307,12 @@ void signCertificate(void* args){
   obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, Q_x, Q_y, R_x, R_y, zero_o;
   obig p_o, g_x_o, g_y_o, n_o, a_o, e_o;
   obig tmp, r, k_inverse, interim, interim_mod, s;
-  obliv unsigned char k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
-  obliv unsigned char p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
-  io->private_key = (unsigned char *) malloc(MAXN);
+  obliv uint8_t k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
+  obliv uint8_t p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
+//  io->private_key = (uint8_t *) malloc(MAXN);
 
-  io->s = (unsigned char *) malloc(MAXN);
-  io->r = (unsigned char *) malloc(MAXN);
+//  io->s = (uint8_t *) malloc(MAXN);
+//  io->r = (uint8_t *) malloc(MAXN);
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
@@ -312,16 +349,16 @@ void signCertificate(void* args){
   feedOblivCharArray(a_c, io->a, MAXN, 1);
   feedOblivCharArray(e_c, io->e, E_LENGTH, 1);
 
-  obig_import_opointed(&pk1, ppk1, MAXN);
-  obig_import_opointed(&pk2, ppk2, MAXN);
-  obig_import_opointed(&kk1, k1, MAXN);
-  obig_import_opointed(&kk2, k2, MAXN);
-  obig_import_opointed(&p_o, p_c, MAXN);
-  obig_import_opointed(&g_x_o, g_x_c, MAXN);
-  obig_import_opointed(&g_y_o, g_y_c, MAXN);
-  obig_import_opointed(&n_o, n_c, MAXN);
-  obig_import_opointed(&a_o, a_c, MAXN);
-  obig_import_opointed(&e_o, e_c, E_LENGTH);
+  my_obig_import_opointed(&pk1, ppk1, MAXN);
+  my_obig_import_opointed(&pk2, ppk2, MAXN);
+  my_obig_import_opointed(&kk1, k1, MAXN);
+  my_obig_import_opointed(&kk2, k2, MAXN);
+  my_obig_import_opointed(&p_o, p_c, MAXN);
+  my_obig_import_opointed(&g_x_o, g_x_c, MAXN);
+  my_obig_import_opointed(&g_y_o, g_y_c, MAXN);
+  my_obig_import_opointed(&n_o, n_c, MAXN);
+  my_obig_import_opointed(&a_o, a_c, MAXN);
+  my_obig_import_opointed(&e_o, e_c, E_LENGTH);
 
   //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
   
@@ -346,7 +383,7 @@ void signCertificate(void* args){
 */
   //7. s = k^-1 (e + rd) mod n
 //  mult_inverse(&k_inverse, kk1, n_o);
-  obig_add(&k_inverse, n_o, kk1);
+  mult_inverse(&k_inverse, kk1, n_o);
   //revealOblivBool(&io->tempBool, success, 0);
 /*
   obig_mul(&interim, r, pk);
@@ -359,8 +396,8 @@ void signCertificate(void* args){
   obliv int8_t s_comp_result = obig_cmp(s, zero_o);
   revealOblivInt(&io->SisZero, s_comp_result, 0);
 */
-  for(int ii = 0; ii < k.digits; ii++)
-    revealOblivChar(&io->r[ii], kk1.data[ii], 0);
+  for(int ii = 0; ii < n_o.digits; ii++)
+    revealOblivChar(&io->r[ii], n_o.data[ii], 0);
 
   for(int ii = 0; ii < k_inverse.digits; ii++)
     revealOblivChar(&io->s[ii], k_inverse.data[ii], 0);
