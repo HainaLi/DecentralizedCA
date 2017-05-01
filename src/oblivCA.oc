@@ -1,20 +1,13 @@
 #include "oblivCA.oh"
 #include <stdio.h>
 
-//#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
 void my_obig_import_opointed(obig* x, obliv uint8_t* p, size_t s) obliv {
 	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < s) {
-//			if (IS_BIG_ENDIAN) {
-//                              ~obliv(en){fprintf(stderr, "\nBIG ENDIAN");}
-				x->data[x->digits - 1 - ii] = p[ii];
-//			} else {
-//				x->data[ii] = p[ii];
-//			}
-		} else {
+		if (ii < s)
+			x->data[x->digits - 1 - ii] = p[ii];
+		else
 			x->data[ii] = 0;
-		}
 	}
 }
 
@@ -62,7 +55,7 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
 
       obig_mul(remref, q, newt);
 
-      obliv if(tsign == newtsign){
+      obliv if(tsign == tmpsign){
         obliv if(obig_cmp(rem, t) > 0){
           newtsign = !newtsign;
           obig_sub(newtref, rem, t);
@@ -71,7 +64,7 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
           obig_sub(newtref, t, rem);
       }
 
-      obliv if(tsign != newtsign){
+      obliv if(tsign != tmpsign){
         newtsign = !newtsign;
         obig_add(newtref, t, rem);
       }
@@ -148,22 +141,36 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
 
-  obig_sub_signed(&final_x, lambda2_mod, px);
-  obliv if(obig_cmp(final_x, zero) < 0)
-    obig_add(final_xref, final_x, p);
-  obig_sub_signed(resx, final_x, px);
-  obliv if(obig_cmp(*resx, zero) < 0)
-    obig_add(resx, *resx, p);
+  obliv if(obig_cmp(lambda2_mod, px) >= 0)
+    obig_sub(final_xref, lambda2_mod, px);
+  obliv if(obig_cmp(lambda2_mod, px) < 0){
+    obig_sub(final_xref, px, lambda2_mod);
+    obig_sub(final_xref, p, final_x);
+  }
+  
+  obliv if(obig_cmp(final_x, px) >= 0)
+    obig_sub(resx, final_x, px);
+  obliv if(obig_cmp(final_x, px) < 0){
+    obig_sub(resx, px, final_x);
+    obig_sub(resx, p, *resx);
+  }
 
-  obig_sub(&tt, px, *resx);
-  obliv if(obig_cmp(tt, zero) < 0)
-    obig_add(ttref, tt, p);
+  obliv if(obig_cmp(px, *resx) >= 0)
+    obig_sub(ttref, px, *resx);
+  obliv if(obig_cmp(px, *resx) < 0){
+    obig_sub(ttref, *resx, px);
+    obig_sub(ttref, p, tt);
+  }
   
   obig_mul(&lambda, lambda_mod, tt);
   obig_div_mod(&tmp, &final_y, lambda, p);
-  obig_sub_signed(resy, final_y, py);
-  obliv if(obig_cmp(*resy, zero) < 0)
-    obig_add(resy, *resy, p);
+  
+  obliv if(obig_cmp(final_y, py) >= 0)
+    obig_sub(resy, final_y, py);
+  obliv if(obig_cmp(final_y, py) < 0){
+    obig_sub(resy, py, final_y);
+    obig_sub(resy, p, *resy);
+  }
 
   obig_free(&x2);
   obig_free(&x2_mod);
@@ -207,13 +214,19 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig *final_xref = &final_x;
   obig *ttref =&tt;
 
-  obig_sub_signed(&num, qy, py);
-  obliv if(obig_cmp(num, zero) < 0)
-    obig_add(numref, num, p);
+  obliv if(obig_cmp(qy, py) >= 0)
+    obig_sub(numref, qy, py);
+  obliv if(obig_cmp(qy, py) < 0){
+    obig_sub(numref, py, qy);
+    obig_sub(numref, p, num);
+  }
 
-  obig_sub_signed(&den, qx, px);
-  obliv if(obig_cmp(den, zero) < 0)
-    obig_add(denref, den, p);
+  obliv if(obig_cmp(qx, px) >= 0)
+    obig_sub(denref, qx, px);
+  obliv if(obig_cmp(qx, px) < 0){
+    obig_sub(denref, px, qx);
+    obig_sub(denref, p, den);
+  }
 
   mult_inverse(&den, den, p);
   obig_mul(&lambda, num, den);
@@ -222,22 +235,36 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
   
-  obig_sub_signed(&final_x, lambda2_mod, px);
-  obliv if(obig_cmp(final_x, zero) < 0)
-    obig_add(final_xref, final_x, p);
-  obig_sub_signed(resx, final_x, qx);
-  obliv if(obig_cmp(*resx, zero) < 0)
-    obig_add(resx, *resx, p);
+  obliv if(obig_cmp(lambda2_mod, px) >= 0)
+    obig_sub(final_xref, lambda2_mod, px);
+  obliv if(obig_cmp(lambda2_mod, px) < 0){
+    obig_sub(final_xref, px, lambda2_mod);
+    obig_sub(final_xref, p, final_x);
+  }
 
-  obig_sub_signed(&tt, px, *resx);
-  obliv if(obig_cmp(tt, zero) < 0)
-    obig_add(ttref, tt, p);
+  obliv if(obig_cmp(final_x, qx) >= 0)
+    obig_sub(resx, final_x, qx);
+  obliv if(obig_cmp(final_x, qx) < 0){
+    obig_sub(resx, qx, final_x);
+    obig_sub(resx, p, *resx);
+  }
+
+  obliv if(obig_cmp(px, *resx) >= 0)
+    obig_sub(ttref, px, *resx);
+  obliv if(obig_cmp(px, *resx) < 0){
+    obig_sub(ttref, *resx, px);
+    obig_sub(ttref, p, tt);
+  }
   
   obig_mul(&lambda, lambda_mod, tt);
   obig_div_mod(&tmp, &final_y, lambda, p);
-  obig_sub_signed(resy, final_y, py);
-  obliv if(obig_cmp(*resy, zero) < 0)
-    obig_add(resy, *resy, p);
+  
+  obliv if(obig_cmp(final_y, py) >= 0)
+    obig_sub(resy, final_y, py);
+  obliv if(obig_cmp(final_y, py) < 0){
+    obig_sub(resy, py, final_y);
+    obig_sub(resy, p, *resy);
+  }
 
   obig_free(&lambda);
   obig_free(&lambda_mod);
@@ -309,10 +336,6 @@ void signCertificate(void* args){
   obig tmp, r, k_inverse, interim, interim_mod, s;
   obliv uint8_t k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
   obliv uint8_t p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
-//  io->private_key = (uint8_t *) malloc(MAXN);
-
-//  io->s = (uint8_t *) malloc(MAXN);
-//  io->r = (uint8_t *) malloc(MAXN);
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
@@ -336,7 +359,8 @@ void signCertificate(void* args){
   obig_init(&interim, MAXN);
   obig_init(&interim_mod, MAXN);
   obig_init(&s, MAXN);
-
+  obig_init(&zero_o, MAXN);
+  obig_zero(&zero_o); 
  
   feedOblivCharArray(ppk1, io->private_key_share1, MAXN, 1);
   feedOblivCharArray(ppk2, io->private_key_share2, MAXN, 2);
@@ -368,24 +392,21 @@ void signCertificate(void* args){
   obig_xor(&k, kk1, kk2);
 
   //2. Compute Q=dG
-  //curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
-/*  curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
+  curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
+  curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
 
   //3: r = Q_x mod n  
   obliv bool success = obig_div_mod(&tmp, &r, R_x, n_o);
   revealOblivBool(&io->tempBool, success, 0);
     
   //Check whether r is zero
-  obig_init(&zero_o, MAXN);
-  obig_zero(&zero_o); 
   obliv int8_t r_comp_result = obig_cmp(r, zero_o);
   revealOblivInt(&io->RisZero, r_comp_result, 0);
-*/
+
   //7. s = k^-1 (e + rd) mod n
-//  mult_inverse(&k_inverse, kk1, n_o);
-  mult_inverse(&k_inverse, kk1, n_o);
-  //revealOblivBool(&io->tempBool, success, 0);
-/*
+  mult_inverse(&k_inverse, k, n_o);
+//  revealOblivBool(&io->tempBool, success, 0);
+
   obig_mul(&interim, r, pk);
   obig_add(&interim, e_o, interim);
   obig_div_mod(&tmp, &interim_mod, interim, n_o);
@@ -395,12 +416,12 @@ void signCertificate(void* args){
   //Check whether s is zero
   obliv int8_t s_comp_result = obig_cmp(s, zero_o);
   revealOblivInt(&io->SisZero, s_comp_result, 0);
-*/
-  for(int ii = 0; ii < n_o.digits; ii++)
-    revealOblivChar(&io->r[ii], n_o.data[ii], 0);
 
-  for(int ii = 0; ii < k_inverse.digits; ii++)
-    revealOblivChar(&io->s[ii], k_inverse.data[ii], 0);
+  for(int ii = 0; ii < r.digits; ii++)
+    revealOblivChar(&io->r[ii], r.data[ii], 0);
+
+  for(int ii = 0; ii < s.digits; ii++)
+    revealOblivChar(&io->s[ii], s.data[ii], 0);
 
   obig_free(&pk1);
   obig_free(&pk2);
