@@ -1,14 +1,13 @@
 #include "oblivCA.oh"
 #include <stdio.h>
 
-
 void my_obig_import_opointed(obig* x, obliv uint8_t* p, size_t s) obliv {
-	for (size_t ii = 0; ii < x->digits; ii++) {
-		if (ii < s)
-			x->data[x->digits - 1 - ii] = p[ii];
-		else
-			x->data[ii] = 0;
-	}
+  for (size_t ii = 0; ii < x->digits; ii++) {
+    if (ii < s)
+      x->data[x->digits - 1 - ii] = p[ii];
+    else
+      x->data[ii] = 0;
+  }
 }
 
 // Extended Euclid's Algorithm for Multiplicative Inverse
@@ -98,19 +97,19 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, tmp, tt, final_x, final_y;
   ~obliv(en) {
   obig_init(&lambda, 2*MAXN);
-  obig_init(&lambda_mod, MAXN);
+  obig_init(&lambda_mod, MAXN + 1);
   obig_init(&lambda2, 2*MAXN);
-  obig_init(&lambda2_mod, MAXN);
+  obig_init(&lambda2_mod, MAXN + 1);
   obig_init(&x2, 2*MAXN);
-  obig_init(&x2_mod, MAXN);
-  obig_init(&num, MAXN);
-  obig_init(&den, MAXN);
-  obig_init(&tmp, MAXN);
-  obig_init(&tt, MAXN);
-  obig_init(&zero, MAXN);
+  obig_init(&x2_mod, MAXN + 1);
+  obig_init(&num, MAXN + 1);
+  obig_init(&den, MAXN + 1);
+  obig_init(&tmp, MAXN + 1);
+  obig_init(&tt, MAXN + 1);
+  obig_init(&zero, MAXN + 1);
   obig_zero(&zero);
-  obig_init(&final_x, MAXN);
-  obig_init(&final_y, MAXN);
+  obig_init(&final_x, MAXN + 1);
+  obig_init(&final_y, MAXN + 1);
   
   obig *numref = &num;
   obig *denref = &den;
@@ -191,23 +190,23 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
 /*
 lambda = (yq - yp)/(xq - xp)
 resx = lambda^2 - xp - xq
-resy = lambda(x - resx) - y
+resy = lambda(xp - resx) - yp
 */
 void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv{
   obig zero, lambda, lambda_mod, lambda2, lambda2_mod, num, den, tt, tmp, final_x, final_y;
   ~obliv(en) {
   obig_init(&lambda, 2*MAXN);
-  obig_init(&lambda_mod, MAXN);
+  obig_init(&lambda_mod, MAXN + 1);
   obig_init(&lambda2, 2*MAXN);
-  obig_init(&lambda2_mod, MAXN);
-  obig_init(&num, MAXN);
-  obig_init(&den, MAXN);
-  obig_init(&tt, MAXN);
-  obig_init(&tmp, MAXN);
-  obig_init(&zero, MAXN);
+  obig_init(&lambda2_mod, MAXN + 1);
+  obig_init(&num, MAXN + 1);
+  obig_init(&den, MAXN + 1);
+  obig_init(&tt, MAXN + 1);
+  obig_init(&tmp, MAXN + 1);
+  obig_init(&zero, MAXN + 1);
   obig_zero(&zero);
-  obig_init(&final_x, MAXN);
-  obig_init(&final_y, MAXN);
+  obig_init(&final_x, MAXN + 1);
+  obig_init(&final_y, MAXN + 1);
   
   obig *numref = &num;
   obig *denref = &den;
@@ -283,6 +282,9 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
 // elliptic curve point multiplication
 void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv{
   obig Nx, Ny, Qx, Qy, tmpx, tmpy;
+  obliv uint8_t t;
+  uint8_t xx;
+  obliv bool initial = true;
   ~obliv(en) {
   obig_init(&Nx, MAXN);
   obig_init(&Ny, MAXN);
@@ -293,8 +295,6 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
 
   obig_copy(&Nx, gx);
   obig_copy(&Ny, gy);
-  obig_zero(&Qx);
-  obig_zero(&Qy);
 
   obig *Qxref = &Qx;
   obig *Qyref = &Qy;
@@ -303,18 +303,27 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig *tmpxref = &tmpx;
   obig *tmpyref = &tmpy;
   
-  for(int ii = 0; ii < d.digits; ii++){
-    for(int j = 0; j < 8; j++){
-      obliv if(d.data[ii] & (1 << j)){
-        obig_copy(tmpxref, Qx);
-        obig_copy(tmpyref, Qy);
-        pointAdd(Qxref, Qyref, tmpx, tmpy, Nx, Ny, p);
+  for(int ii = d.digits - 1; ii >= 0; ii--){
+    for(int j = 0; j < 3; j++){
+      t = d.data[ii] & (1 << j);
+      obliv if(t > 0){ // computation getting executed even in false condition!
+
+        obliv if(initial == false){
+          obig_copy(tmpxref, Qx);
+          obig_copy(tmpyref, Qy);
+          pointAdd(Qxref, Qyref, tmpx, tmpy, Nx, Ny, p);
+        }
+
+        obliv if(initial == true){
+          initial = false;
+          obig_copy(Qxref, Nx);
+          obig_copy(Qyref, Ny);
+        }
       }
       obig_copy(tmpxref, Nx);
       obig_copy(tmpyref, Ny);
       pointDouble(Nxref, Nyref, tmpx, tmpy, a, p);
     }
-    fprintf(stderr,"\n%d\n",ii);
   }
   obig_copy(resx, Qx);
   obig_copy(resy, Qy);
@@ -329,20 +338,19 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
 
 void signCertificate(void* args){
   
-  
   protocolIO *io = args;
   obig pk1, pk2, pk, kk1, kk2, k, pubx, puby, Q_x, Q_y, R_x, R_y, zero_o;
   obig p_o, g_x_o, g_y_o, n_o, a_o, e_o;
   obig tmp, r, k_inverse, interim, interim_mod, s;
-  obliv uint8_t k1[MAXN], k2[MAXN], ppk1[MAXN], ppk2[MAXN];
+  obliv uint8_t k1[1], k2[1], ppk1[1], ppk2[1];
   obliv uint8_t p_c[MAXN], g_x_c[MAXN], g_y_c[MAXN], n_c[MAXN], a_c[MAXN], e_c[E_LENGTH];
 
-  obig_init(&pk1, MAXN);
-  obig_init(&pk2, MAXN);
-  obig_init(&pk, MAXN);
-  obig_init(&kk1, MAXN);
-  obig_init(&kk2, MAXN);
-  obig_init(&k, MAXN);
+  obig_init(&pk1, 1);
+  obig_init(&pk2, 1);
+  obig_init(&pk, 1);
+  obig_init(&kk1, 1);
+  obig_init(&kk2, 1);
+  obig_init(&k, 1);
   obig_init(&p_o, MAXN);
   obig_init(&g_x_o, MAXN);
   obig_init(&g_y_o, MAXN);
@@ -362,10 +370,10 @@ void signCertificate(void* args){
   obig_init(&zero_o, MAXN);
   obig_zero(&zero_o); 
  
-  feedOblivCharArray(ppk1, io->private_key_share1, MAXN, 1);
-  feedOblivCharArray(ppk2, io->private_key_share2, MAXN, 2);
-  feedOblivCharArray(k1, io->k1, MAXN, 1);
-  feedOblivCharArray(k2, io->k2, MAXN, 2);
+  feedOblivCharArray(ppk1, io->private_key_share1, 1, 1);
+  feedOblivCharArray(ppk2, io->private_key_share2, 1, 2);
+  feedOblivCharArray(k1, io->k1, 1, 1);
+  feedOblivCharArray(k2, io->k2, 1, 2);
   feedOblivCharArray(p_c, io->p, MAXN, 1);
   feedOblivCharArray(g_x_c, io->g_x, MAXN, 1);
   feedOblivCharArray(g_y_c, io->g_y, MAXN, 1);
@@ -373,10 +381,10 @@ void signCertificate(void* args){
   feedOblivCharArray(a_c, io->a, MAXN, 1);
   feedOblivCharArray(e_c, io->e, E_LENGTH, 1);
 
-  my_obig_import_opointed(&pk1, ppk1, MAXN);
-  my_obig_import_opointed(&pk2, ppk2, MAXN);
-  my_obig_import_opointed(&kk1, k1, MAXN);
-  my_obig_import_opointed(&kk2, k2, MAXN);
+  my_obig_import_opointed(&pk1, ppk1, 1);
+  my_obig_import_opointed(&pk2, ppk2, 1);
+  my_obig_import_opointed(&kk1, k1, 1);
+  my_obig_import_opointed(&kk2, k2, 1);
   my_obig_import_opointed(&p_o, p_c, MAXN);
   my_obig_import_opointed(&g_x_o, g_x_c, MAXN);
   my_obig_import_opointed(&g_y_o, g_y_c, MAXN);
@@ -393,6 +401,8 @@ void signCertificate(void* args){
 
   //2. Compute Q=dG
   curveMult(&Q_x, &Q_y, g_x_o, g_y_o, pk, a_o, p_o);
+
+/*  
   curveMult(&R_x, &R_y, g_x_o, g_y_o, k, a_o, p_o);
 
   //3: r = Q_x mod n  
@@ -416,13 +426,19 @@ void signCertificate(void* args){
   //Check whether s is zero
   obliv int8_t s_comp_result = obig_cmp(s, zero_o);
   revealOblivInt(&io->SisZero, s_comp_result, 0);
-
+*/
+  for(int ii = 0; ii < Q_x.digits; ii++)
+    revealOblivChar(&io->Q_x[ii], Q_x.data[ii], 0);
+  
+  for(int ii = 0; ii < Q_y.digits; ii++)
+    revealOblivChar(&io->Q_y[ii], Q_y.data[ii], 0);
+/*
   for(int ii = 0; ii < r.digits; ii++)
     revealOblivChar(&io->r[ii], r.data[ii], 0);
 
   for(int ii = 0; ii < s.digits; ii++)
     revealOblivChar(&io->s[ii], s.data[ii], 0);
-
+*/
   obig_free(&pk1);
   obig_free(&pk2);
   obig_free(&pk);

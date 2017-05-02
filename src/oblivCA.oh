@@ -13,20 +13,19 @@ typedef struct curve{
   obig b;
   obig g_x, g_y;
   obig n;
-  obig h;
 }curve;
 
 typedef struct protocolIO{
-  uint8_t private_key_share1[MAXN];
-  uint8_t private_key_share2[MAXN];
-  uint8_t k1[MAXN];
-  uint8_t k2[MAXN];
+  uint8_t private_key_share1[1];
+  uint8_t private_key_share2[1];
+  uint8_t k1[1];
+  uint8_t k2[1];
   uint8_t p[MAXN];
   uint8_t a[MAXN];
   uint8_t b[MAXN];
   uint8_t g_x[MAXN], g_y[MAXN];
+  uint8_t Q_x[MAXN], Q_y[MAXN];
   uint8_t n[MAXN];
-  uint8_t h[MAXN];
   uint8_t e[MAXN];
   uint8_t r[MAXN];
   uint8_t s[MAXN];
