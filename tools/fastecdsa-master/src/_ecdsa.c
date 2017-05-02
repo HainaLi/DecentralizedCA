@@ -82,6 +82,7 @@ static PyObject * _ecdsa_sign(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else if(strcmp(curveName, "secp192k1") == 0) { curve = buildSecp192k1(); }
     else { return NULL; }
 
     mpz_init_set_str(privKey, d, 10);
@@ -121,6 +122,7 @@ static PyObject * _ecdsa_verify(PyObject *self, PyObject *args) {
     else if(strcmp(curveName, "P384") == 0) { curve = buildP384(); }
     else if(strcmp(curveName, "P521") == 0) { curve = buildP521(); }
     else if(strcmp(curveName, "secp256k1") == 0) { curve = buildSecp256k1(); }
+    else if(strcmp(curveName, "secp192k1") == 0) { curve = buildSecp192k1(); }
     else { return NULL; }
 
     PointZZ_p * Q = buildPointZZ_p(qx, qy, 10);

@@ -25,10 +25,14 @@ def sign(msg, d, curve=P256, hashfunc=sha256):
         |  hashfunc (_hashlib.HASH): The hash function used to compress the message.
     """
     # generate a deterministic nonce per RFC6979
-    rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
-    k = rfc6979.gen_nonce()
+    #rfc6979 = RFC6979(msg, d, curve.q, hashfunc)
+    #k = rfc6979.gen_nonce()
+    #print format(k, '02x')
 
-    hashed = hashfunc(msg.encode()).hexdigest()
+
+    #hashed = hashfunc(msg.encode()).hexdigest()
+    k = 0xAF96F7CF8932223963ACEF6CFE675E0661E58B80D62CEF00C
+    hashed = str(0x0d80b4919e2edb5e1ba3e619e8b60bfad25d16c4deec05a7)
     r, s = _ecdsa.sign(hashed, str(d), str(k), curve.name)
     return (int(r), int(s))
 
@@ -66,6 +70,6 @@ def verify(sig, msg, Q, curve=P256, hashfunc=sha256):
     elif s > curve.q or s < 1:
         raise EcdsaError(
             'Invalid Signature: s is not a positive integer smaller than the curve order')
-
-    hashed = hashfunc(msg.encode()).hexdigest()
+    hashed = str(0x0d80b4919e2edb5e1ba3e619e8b60bfad25d16c4deec05a7)
+    #hashed = hashfunc(msg.encode()).hexdigest()
     return _ecdsa.verify(str(r), str(s), hashed, str(Q.x), str(Q.y), curve.name)

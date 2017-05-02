@@ -32,18 +32,35 @@ with open('../certificates/sample_tbscertificate.txt', 'r') as myfile:
 #print m
 #private_key = keys.gen_private_key(curve.P256)
 #xor of 0x f89c265291674f656c2218676274d71794e95ba8270b2fa4
-#and    0x ebb125a0cd2fea04687f5e96a57d6005b4de2c1d8851b888
-# 		0x 132D03F25C48A561045D46F1C709B712203777B5AF5A972C
+#and    0x 000aebb125a0cd2fea04687f5e96a57d6005b4de2c1d8851b888
+# 		0x A132D03F25C48A561045D46F1C709B712203777B5AF5A972C
 
 
-private_key = 0x132D03F25C48A561045D46F1C709B712203777B5AF5A972C
+#random number
+#xor of 0x 000a65dd535f477eb883d161d0b9be0045e84813c66d740ced23
+# and   0x 9cb22fa7d45c9b15ebaf26765875a58e564b7e6016c21d2f
+#       0x AF96F7CF8932223963ACEF6CFE675E0661E58B80D62CEF00C
+
+
+#Z = Hash(message)
+#		0x 0d80b4919e2edb5e1ba3e619e8b60bfad25d16c4deec05a7
+
+
+private_key = 0xA132D03F25C48A561045D46F1C709B712203777B5AF5A972C
 public_key = keys.get_public_key(private_key, secp192k1)
+print "Public key: "
 print public_key
 
 #the signature will be different because you've generated a different random number
 ''' specify a different hash function to use with ECDSA '''
 r, s = ecdsa.sign(m, private_key, curve=secp192k1, hashfunc=sha256)
 valid = ecdsa.verify((r, s), m, public_key, hashfunc=sha256, curve=secp192k1)
+
+print "(r, s)"
+print format(r, '02x'), format(s, '02x')
+
+print "valid: "
+print valid
 
 
 
