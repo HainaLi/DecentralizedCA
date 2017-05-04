@@ -1,7 +1,7 @@
 testName=oblivCA
 
 CILPATH=/home/hannah/Desktop/obliv-c
-ACKPATH=/home/hannah/Desktop/absentminded-crypto
+ACKPATH=/home/hannah/Desktop/absentminded-crypto-kit
 REMOTE_HOST=localhost
 CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3
 ./a.out: $(testName).oc $(testName).c util.c $(ACKPATH)/build/lib/liback.a $(CILPATH)/_build/libobliv.a 

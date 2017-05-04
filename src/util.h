@@ -1,7 +1,7 @@
 #pragma once
 
 void ocTestUtilTcpOrDie(struct ProtocolDesc* pd,const char* remote_host,
-                        //const char* port);
+                        const char* port);
 double wallClock();
 
 int hex_to_int(char c);
