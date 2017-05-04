@@ -316,7 +316,7 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig *Nxref = &Nx;
   obig *Nyref = &Ny;
   
-  for(int ii = d.digits - 1; ii >= 0; ii--){
+  for(int ii = 0; ii < d.digits; ii++){
     for(int j = 0; j < 8; j++){
       t = d.data[ii] & (1 << j);
       obliv if(t > 0){
