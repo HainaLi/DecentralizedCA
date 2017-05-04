@@ -1,0 +1,11 @@
+Prerequisites:
+ - Obliv-C (https://github.com/samee/obliv-c)
+ - Absentminded Crypto Kit (https://bitbucket.org/jackdoerner/absentminded-crypto-kit/src)
+
+To run the code:
+- Go to DecentralizedCA/src
+- run 'make'
+- To run on local machine: run './a.out [port-number] -- & ./a.out [port-number] localhost'
+- To run on seperate machines: run './a.out [port-number] --' on server machine and run './a.out [port-number] [remote-host]' on client machine
+
+The code will output the ECDSA signature pair (r,s)
