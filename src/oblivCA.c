@@ -13,19 +13,16 @@ int main(int argc,char *argv[]){
   int party;
 
   //input curve parameters: secp192k1
-  const uint8_t * p_hexstring  = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFE\xFF\xFF\xEE\x37"; 
-  const uint8_t *a_hexstring   = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"; 
-  const uint8_t * b_hexstring  = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03";
-  const uint8_t *n_hexstring   = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFE\x26\xF2\xFC\x17\x0F\x69\x46\x6A\x74\xDE\xFD\x8D";
-  const uint8_t *g_x_hexstring = "\xDB\x4F\xF1\x0E\xC0\x57\xE9\xAE\x26\xB0\x7D\x02\x80\xB7\xF4\x34\x1D\xA5\xD1\xB1\xEA\xE0\x6C\x7D";
-  const uint8_t *g_y_hexstring = "\x9B\x2F\x2F\x6D\x9C\x56\x28\xA7\x84\x41\x63\xD0\x15\xBE\x86\x34\x40\x82\xAA\x88\xD9\x5E\x2F\x9D";
-
-  const uint8_t *rand_key_0    = "\xeb\xb1\x25\xa0\xcd\x2f\xea\x04\x68\x7f\x5e\x96\xa5\x7d\x60\x05\xb4\xde\x2c\x1d\x88\x51\xb8\x88";
-  const uint8_t *rand_key_1    = "\x65\xdd\x53\x5f\x47\x7e\xb8\x83\xd1\x61\xd0\xb9\xbe\x00\x45\xe8\x48\x13\xc6\x6d\x74\x0c\xed\x23";
-  const uint8_t *rand_key_2    = "\xf8\x9c\x26\x52\x91\x67\x4f\x65\x6c\x22\x18\x67\x62\x74\xd7\x17\x94\xe9\x5b\xa8\x27\x0b\x2f\xa4";
-  const uint8_t *rand_key_3    = "\x9c\xb2\x2f\xa7\xd4\x5c\x9b\x15\xeb\xaf\x26\x76\x58\x75\xa5\x8e\x56\x4b\x7e\x60\x16\xc2\x1d\x2f";
-
-  const uint8_t * e_hexstring  = "\x0d\x80\xb4\x91\x9e\x2e\xdb\x5e\x1b\xa3\xe6\x19\xe8\xb6\x0b\xfa\xd2\x5d\x16\xc4\xde\xec\x05\xa7"; 
+  uint8_t p_hexstring[MAXN]   = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xEE, 0x37};
+  uint8_t a_hexstring[MAXN]   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t n_hexstring[MAXN]   = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0x26, 0xF2, 0xFC, 0x17, 0x0F, 0x69, 0x46, 0x6A, 0x74, 0xDE, 0xFD, 0x8D};
+  uint8_t g_x_hexstring[MAXN] = {0xDB, 0x4F, 0xF1, 0x0E, 0xC0, 0x57, 0xE9, 0xAE, 0x26, 0xB0, 0x7D, 0x02, 0x80, 0xB7, 0xF4, 0x34, 0x1D, 0xA5, 0xD1, 0xB1, 0xEA, 0xE0, 0x6C, 0x7D};
+  uint8_t g_y_hexstring[MAXN] = {0x9B, 0x2F, 0x2F, 0x6D, 0x9C, 0x56, 0x28, 0xA7, 0x84, 0x41, 0x63, 0xD0, 0x15, 0xBE, 0x86, 0x34, 0x40, 0x82, 0xAA, 0x88, 0xD9, 0x5E, 0x2F, 0x9D};
+  uint8_t rand_key_0[MAXN]    = {0xeb, 0xb1, 0x25, 0xa0, 0xcd, 0x2f, 0xea, 0x04, 0x68, 0x7f, 0x5e, 0x96, 0xa5, 0x7d, 0x60, 0x05, 0xb4, 0xde, 0x2c, 0x1d, 0x88, 0x51, 0xb8, 0x88};
+  uint8_t rand_key_1[MAXN]    = {0x65, 0xdd, 0x53, 0x5f, 0x47, 0x7e, 0xb8, 0x83, 0xd1, 0x61, 0xd0, 0xb9, 0xbe, 0x00, 0x45, 0xe8, 0x48, 0x13, 0xc6, 0x6d, 0x74, 0x0c, 0xed, 0x23};
+  uint8_t rand_key_2[MAXN]    = {0xf8, 0x9c, 0x26, 0x52, 0x91, 0x67, 0x4f, 0x65, 0x6c, 0x22, 0x18, 0x67, 0x62, 0x74, 0xd7, 0x17, 0x94, 0xe9, 0x5b, 0xa8, 0x27, 0x0b, 0x2f, 0xa4};
+  uint8_t rand_key_3[MAXN]    = {0x9c, 0xb2, 0x2f, 0xa7, 0xd4, 0x5c, 0x9b, 0x15, 0xeb, 0xaf, 0x26, 0x76, 0x58, 0x75, 0xa5, 0x8e, 0x56, 0x4b, 0x7e, 0x60, 0x16, 0xc2, 0x1d, 0x2f};
+  uint8_t e_hexstring[MAXN]   = {0x0d, 0x80, 0xb4, 0x91, 0x9e, 0x2e, 0xdb, 0x5e, 0x1b, 0xa3, 0xe6, 0x19, 0xe8, 0xb6, 0x0b, 0xfa, 0xd2, 0x5d, 0x16, 0xc4, 0xde, 0xec, 0x05, 0xa7}; 
   //this is the e you need in step 6. Right now, it's only the hash of "hello". Working on the cert gen now. Will update this value
 
   if(strcmp(argv[2], "--") == 0)
@@ -48,7 +45,6 @@ int main(int argc,char *argv[]){
 
   memcpy(io.p, p_hexstring, MAXN);
   memcpy(io.a, a_hexstring, MAXN);
-  memcpy(io.b, b_hexstring, MAXN);
   memcpy(io.g_x, g_x_hexstring, MAXN);
   memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
@@ -60,10 +56,8 @@ int main(int argc,char *argv[]){
   cleanupProtocol(&pd);
   end = clock();
 
-  //int gates = yaoGateCount();
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-  fprintf(stderr,"\nParty %d, Elapsed Time: %f seconds\n", party, cpu_time_used);
-  //fprintf(stderr,"\nNumber of Gates: %u\n", gates);
+  fprintf(stderr, "\nParty %d, Elapsed Time: %f seconds, \n", party, cpu_time_used);
 
   if(!io.RisZero)
     fprintf(stderr, "\nError: r is zero, Please retry with different k\n");
@@ -71,14 +65,6 @@ int main(int argc,char *argv[]){
     fprintf(stderr, "\nError: s is zero, Please retry with different k\n");
 
   if(party == 1){
-
-    fprintf(stderr, "\nR_x is :\n");
-    for(int i = 0; i < MAXN; i++)
-      fprintf(stderr,"0x%02hhX ", io.Q_x[MAXN - 1 - i]);
-    fprintf(stderr, "\nR_y is :\n");
-    for(int i = 0; i < MAXN; i++)
-      fprintf(stderr,"0x%02hhX ", io.Q_y[MAXN - 1 - i]);
-
     fprintf(stderr, "\nr is :\n");
     for(int i = 0; i < MAXN; i++)
       fprintf(stderr,"0x%02hhX ", io.r[MAXN - 1 - i]);

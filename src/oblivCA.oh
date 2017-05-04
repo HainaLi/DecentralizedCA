@@ -10,7 +10,6 @@
 typedef struct curve{
   obig p;
   obig a;
-  obig b;
   obig g_x, g_y;
   obig n;
 }curve;
@@ -22,7 +21,6 @@ typedef struct protocolIO{
   uint8_t k2[MAXN];
   uint8_t p[MAXN];
   uint8_t a[MAXN];
-  uint8_t b[MAXN];
   uint8_t g_x[MAXN], g_y[MAXN];
   uint8_t Q_x[MAXN], Q_y[MAXN];
   uint8_t n[MAXN];
