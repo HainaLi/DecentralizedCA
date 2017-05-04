@@ -81,10 +81,10 @@ int main(int argc,char *argv[]){
 
     fprintf(stderr, "\nr is :\n");
     for(int i = 0; i < MAXN; i++)
-      fprintf(stderr,"\nr[%d]: 0x%02hhX\n", i, io.r[MAXN - 1 - i]);
+      fprintf(stderr,"0x%02hhX ", io.r[MAXN - 1 - i]);
     fprintf(stderr, "\ns is :\n");
     for(int i = 0; i < MAXN; i++)
-      fprintf(stderr,"\ns[%d]: 0x%02hhX\n", i, io.s[MAXN - 1 - i]);
+      fprintf(stderr,"0x%02hhX ", io.s[MAXN - 1 - i]);
   }
 
   return 0;
