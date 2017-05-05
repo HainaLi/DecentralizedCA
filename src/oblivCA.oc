@@ -298,55 +298,55 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
 
 // elliptic curve point multiplication using montgomery ladder: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
 void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv{
-  obig R1x, R1y, R0x, R0y;
+  obig Nx, Ny, Qx, Qy;
   obliv bool initial = true;
   obliv uint8_t t;
 
   ~obliv(en) {
-  obig_init(&R1x, MAXN);
-  obig_init(&R1y, MAXN);
-  obig_init(&R0x, MAXN);
-  obig_init(&R0y, MAXN);
+  obig_init(&Nx, MAXN);
+  obig_init(&Ny, MAXN);
+  obig_init(&Qx, MAXN);
+  obig_init(&Qy, MAXN);
   }
-  obig_copy(&R1x, gx);
-  obig_copy(&R1y, gy);
+  obig_copy(&Nx, gx);
+  obig_copy(&Ny, gy);
 
-  obig *R0xref = &R0x;
-  obig *R0yref = &R0y;
-  obig *R1xref = &R1x;
-  obig *R1yref = &R1y;
+  obig *Qxref = &Qx;
+  obig *Qyref = &Qy;
+  obig *Nxref = &Nx;
+  obig *Nyref = &Ny;
   
   for(int ii = d.digits-1; ii >= 0; ii--){
     for(int j = 7; j >= 0; j--){ 
       t = d.data[ii] & (1 << j);
       obliv if(t == 0){
         obliv if(initial == false) {
-          pointAdd(R1xref, R1yref, R0x, R0y, R1x, R1y, p);
-          pointDouble(R0xref, R0yref, R0x, R0y, a, p);
+          pointAdd(Nxref, Nyref, Qx, Qy, Nx, Ny, p);
+          pointDouble(Qxref, Qyref, Qx, Qy, a, p);
         }        
       }
 
       obliv if(t > 0) {
         obliv if(initial == false) {
-          pointAdd(R0xref, R0yref, R0x, R0y, R1x, R1y, p);
+          pointAdd(Qxref, Qyref, Qx, Qy, Nx, Ny, p);
         }
         obliv if(initial == true){
           initial = false;
-          obig_copy(R0xref, R1x);
-          obig_copy(R0yref, R1y);          
+          obig_copy(Qxref, Nx);
+          obig_copy(Qyref, Ny);          
         }
-        pointDouble(R1xref, R1yref, R1x, R1y, a, p);
+        pointDouble(Nxref, Nyref, Nx, Ny, a, p);
       }
     }
   }
-  obig_copy(resx, R0x);
-  obig_copy(resy, R0y);
+  obig_copy(resx, Qx);
+  obig_copy(resy, Qy);
 
   ~obliv(en){
-  obig_free(&R0x);
-  obig_free(&R0y);
-  obig_free(&R1x);
-  obig_free(&R1y);
+  obig_free(&Nx);
+  obig_free(&Ny);
+  obig_free(&Qx);
+  obig_free(&Qy);
   }
 }
 
