@@ -455,14 +455,13 @@ void signCertificate(void* args){
 
   //2. Compute Q=dG
   //curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);
-  curveMult(&R_x, &R_y, g_x, g_y, k, a, p);
+  curveMultMontgomeryLadder(&R_x, &R_y, g_x, g_y, k, a, p);
 
   //3: r = Q_x mod n  
   obig_div_mod(&tmp, &r, R_x, n);
     
   //Check whether r is zero
   obliv int8_t r_comp_result = obig_cmp(r, zero);
-  revealOblivInt(&io->RisZero, r_comp_result, 0);
 
   //7. s = k^-1 (e + rd) mod n
   mult_inverse(&k_inverse, k, n);
@@ -474,6 +473,10 @@ void signCertificate(void* args){
 
   //Check whether s is zero
   obliv int8_t s_comp_result = obig_cmp(s, zero);
+
+  //reveal all outputs
+  revealOblivInt(&io->RisZero, r_comp_result, 0);
+
   revealOblivInt(&io->SisZero, s_comp_result, 0);
 
   for(int ii = 0; ii < r.digits; ii++)

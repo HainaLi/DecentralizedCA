@@ -59,7 +59,7 @@ int main(int argc,char *argv[]){
 
   start = clock();
   setCurrentParty(&pd, (remote_host ? 2 : 1));
-  execYaoProtocol(&pd, signCertificate, &io);
+  execDualexProtocol(&pd, signCertificate, &io);
   cleanupProtocol(&pd);
   end = clock();
 
