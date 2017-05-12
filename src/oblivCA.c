@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <obliv.h>
-#include <time.h>
 #include "oblivCA.oh"
 #include "util.h"
 
@@ -8,8 +7,7 @@
 int main(int argc,char *argv[]){
   ProtocolDesc pd;
   protocolIO io;
-  clock_t start, end;
-  double cpu_time_used;
+  double start, end;
   int party;
 
   //input curve parameters: secp192k1
@@ -43,11 +41,13 @@ int main(int argc,char *argv[]){
   if(party == 1){
     memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
     memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
+    memcpy(io.e1, e_hexstring, E_LENGTH);
   }
 
   else if(party == 2){
     memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
     memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
+    memcpy(io.e2, e_hexstring, E_LENGTH);
   }
 
   memcpy(io.p, p_hexstring, MAXN);
@@ -55,16 +55,14 @@ int main(int argc,char *argv[]){
   memcpy(io.g_x, g_x_hexstring, MAXN);
   memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
-  memcpy(io.e, e_hexstring, E_LENGTH);
 
-  start = clock();
-  setCurrentParty(&pd, (remote_host ? 2 : 1));
-  execDualexProtocol(&pd, signCertificate, &io);
+  setCurrentParty(&pd, party);
+  start = wallClock();
+  execYaoProtocol(&pd, signCertificate, &io);
+  end = wallClock();
   cleanupProtocol(&pd);
-  end = clock();
-
-  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-  fprintf(stderr, "\nParty %d, Elapsed Time: %f seconds, \n", party, cpu_time_used);
+  
+  fprintf(stderr, "\nParty %d, Elapsed Time: %f seconds, \n", party, end - start);
 
   if(!io.RisZero)
     fprintf(stderr, "\nError: r is zero, Please retry with different k\n");
@@ -79,6 +77,5 @@ int main(int argc,char *argv[]){
     for(int i = 0; i < MAXN; i++)
       fprintf(stderr,"0x%02hhX ", io.s[MAXN - 1 - i]);
   }
-
   return 0;
 }

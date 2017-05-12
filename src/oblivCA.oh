@@ -24,7 +24,7 @@ typedef struct protocolIO{
   uint8_t g_x[MAXN], g_y[MAXN];
   uint8_t Q_x[MAXN], Q_y[MAXN];
   uint8_t n[MAXN];
-  uint8_t e[MAXN];
+  uint8_t e1[E_LENGTH], e2[E_LENGTH];
   uint8_t r[MAXN];
   uint8_t s[MAXN];
   int RisZero, SisZero;
