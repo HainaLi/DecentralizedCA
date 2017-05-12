@@ -486,7 +486,7 @@ void signCertificate(void* args){
   revealOblivInt(&io->SisZero, s_comp_result, 0);
 
 
-  fprintf(stderr,"Yao gate count: %u\n", yaoGateCount());
+  fprintf(stderr,"Yao gate count: %llu\n", yaoGateCount());
 
   for(int ii = 0; ii < r.digits; ii++)
     revealOblivChar(&io->r[ii], r.data[ii], 0);
