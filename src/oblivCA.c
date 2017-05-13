@@ -59,7 +59,7 @@ int main(int argc,char *argv[]){
   setCurrentParty(&pd, party);
   io.pd = pd;
   start = wallClock();
-  execDualexProtocol(&pd, signCertificate, &io);
+  execYaoProtocol(&pd, signCertificate, &io);
   end = wallClock();
   cleanupProtocol(&pd);
   fprintf(stderr, "\nParty %d, Elapsed Time: %f seconds, \n", party, end - start);
