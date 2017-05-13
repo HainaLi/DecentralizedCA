@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <assert.h>
+#include <obliv_common.h>
 #include "oblivCA.oh"
 
 // Extended Euclid's Algorithm for Multiplicative Inverse
@@ -395,18 +397,25 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   }
 }
 
+bool compare(uint8_t *x, uint8_t *y, int len){
+  for(int i = 0; i < len; i++){
+    if(x[i] != y[i])
+      return false;
+  }
+  return true;
+}
+
 void signCertificate(void* args){
   protocolIO *io = args;
   obig pk1, pk2, pk, k1, k2, k, Q_x, Q_y, R_x, R_y, zero;
-  obig p, g_x, g_y, n, a, e, e1, e2, dummy;
+  obig p, g_x, g_y, n, a, e;
   obig tmp, r, k_inverse, interim, interim_mod, s;
-  obliv uint8_t k1_c[MAXN], k2_c[MAXN], pk1_c[MAXN], pk2_c[MAXN], e1_c[E_LENGTH], e2_c[E_LENGTH], r_comp_result, s_comp_result;
+  obliv uint8_t k1_c[MAXN], k2_c[MAXN], pk1_c[MAXN], pk2_c[MAXN], r_comp_result, s_comp_result;
+  uint8_t e1[E_LENGTH], e2[E_LENGTH];
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
   obig_init(&e, E_LENGTH);
-  obig_init(&e1, E_LENGTH);
-  obig_init(&e2, E_LENGTH);
   obig_init(&pk, MAXN);
   obig_init(&k1, MAXN);
   obig_init(&k2, MAXN);
@@ -427,19 +436,14 @@ void signCertificate(void* args){
   obig_init(&interim_mod, MAXN + 1);
   obig_init(&s, MAXN);
   obig_init(&zero, MAXN);
-  obig_init(&dummy, E_LENGTH);
  
   feedOblivCharArray(pk1_c, io->private_key_share1, MAXN, 1);
   feedOblivCharArray(pk2_c, io->private_key_share2, MAXN, 2);
   feedOblivCharArray(k1_c, io->k1, MAXN, 1);
   feedOblivCharArray(k2_c, io->k2, MAXN, 2);
-  feedOblivCharArray(e1_c, io->e1, E_LENGTH, 1);
-  feedOblivCharArray(e2_c, io->e2, E_LENGTH, 2);
 
   obig_import_opointed_be(&pk1, pk1_c, MAXN);
   obig_import_opointed_be(&pk2, pk2_c, MAXN);
-  obig_import_opointed_be(&e1, e1_c, E_LENGTH);
-  obig_import_opointed_be(&e2, e2_c, E_LENGTH);
   obig_import_opointed_be(&k1, k1_c, MAXN);
   obig_import_opointed_be(&k2, k2_c, MAXN);
   obig_import_pointed_be(&p, io->p, MAXN);
@@ -449,11 +453,19 @@ void signCertificate(void* args){
   obig_import_pointed_be(&a, io->a, MAXN);
 
   //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
-  obig *eref = &e;
-  obliv if(obig_cmp(e1, e2) == 0)
-    obig_copy(eref, e1);
-  else
-    obig_copy(eref, dummy);
+  
+  int me = ocCurrentParty();
+  if(me==1){
+    memcpy(&e1, io->e1, E_LENGTH);
+    osend(&io->pd,2,e1,E_LENGTH);
+    orecv(&io->pd,2,e2,E_LENGTH);
+  }else{
+    memcpy(&e2, io->e2, E_LENGTH);
+    orecv(&io->pd,1,e1,E_LENGTH);
+    osend(&io->pd,1,e2,E_LENGTH);
+  }
+  assert(compare(e1,e2,E_LENGTH));
+  obig_import_pointed_be(&e, e1, E_LENGTH);
 
   //1. Select an integer d [1, n-1]
   obig_xor(&pk, pk1, pk2);
@@ -485,14 +497,13 @@ void signCertificate(void* args){
 
   revealOblivInt(&io->SisZero, s_comp_result, 0);
 
-
   fprintf(stderr,"Yao gate count: %llu\n", yaoGateCount());
 
   for(int ii = 0; ii < r.digits; ii++)
-    revealOblivChar(&io->r[ii], r.data[ii], 0);
+    revealOblivChar(&io->r[ii], R_x.data[ii], 0);
 
   for(int ii = 0; ii < s.digits; ii++)
-    revealOblivChar(&io->s[ii], s.data[ii], 0);
+    revealOblivChar(&io->s[ii], R_y.data[ii], 0);
 
   obig_free(&pk1);
   obig_free(&pk2);
@@ -515,9 +526,6 @@ void signCertificate(void* args){
   obig_free(&zero);
   obig_free(&s);
   obig_free(&e);
-  obig_free(&e1);
-  obig_free(&e2);
-  obig_free(&dummy);
   obig_free(&interim);
   obig_free(&interim_mod); 
 }

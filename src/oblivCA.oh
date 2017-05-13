@@ -28,6 +28,7 @@ typedef struct protocolIO{
   uint8_t r[MAXN];
   uint8_t s[MAXN];
   int RisZero, SisZero;
+  ProtocolDesc pd;
 }protocolIO;
 
 void signCertificate(void* args);
