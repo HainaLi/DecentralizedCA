@@ -500,10 +500,10 @@ void signCertificate(void* args){
   fprintf(stderr,"Yao gate count: %llu\n", yaoGateCount());
 
   for(int ii = 0; ii < r.digits; ii++)
-    revealOblivChar(&io->r[ii], R_x.data[ii], 0);
+    revealOblivChar(&io->r[ii], r.data[ii], 0);
 
   for(int ii = 0; ii < s.digits; ii++)
-    revealOblivChar(&io->s[ii], R_y.data[ii], 0);
+    revealOblivChar(&io->s[ii], s.data[ii], 0);
 
   obig_free(&pk1);
   obig_free(&pk2);
