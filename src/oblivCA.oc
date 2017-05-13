@@ -453,28 +453,27 @@ void signCertificate(void* args){
   obig_import_pointed_be(&a, io->a, MAXN);
 
   //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
-  
   int me = ocCurrentParty();
   if(me==1){
-    memcpy(&e1, io->e1, E_LENGTH);
+    memcpy(e1, io->e1, E_LENGTH);
     osend(&io->pd,2,e1,E_LENGTH);
     orecv(&io->pd,2,e2,E_LENGTH);
   }else{
-    memcpy(&e2, io->e2, E_LENGTH);
-    orecv(&io->pd,1,e1,E_LENGTH);
+    memcpy(e2, io->e2, E_LENGTH);
     osend(&io->pd,1,e2,E_LENGTH);
+    orecv(&io->pd,1,e1,E_LENGTH);
   }
   assert(compare(e1,e2,E_LENGTH));
   obig_import_pointed_be(&e, e1, E_LENGTH);
-
+  
   //1. Select an integer d [1, n-1]
   obig_xor(&pk, pk1, pk2);
   obig_xor(&k, k1, k2);
-
+  
   //2. Compute Q=dG
   //curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);
   curveMult(&R_x, &R_y, g_x, g_y, k, a, p);
-
+  
   //3: r = Q_x mod n  
   obig_div_mod(&tmp, &r, R_x, n);
     
