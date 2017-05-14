@@ -3,23 +3,25 @@
 #include <obliv_common.h>
 #include "oblivCA.oh"
 
+//! prefer to separate generic ecc library functions into a separate file - the main CA code should be able to use any library implementation of these
 // Extended Euclid's Algorithm for Multiplicative Inverse
-void mult_inverse(obig *out, obig A, obig M) obliv{
-  obig t, r, newt, newr, q, zero, tmp, rem;
-  obliv bool tsign = false;
+void mult_inverse(obig *out, obig A, obig M) obliv {
+  obig t, r, newt, newr, q, zero, tmp, rem; //! I don't want excessive comments, but would be helpful to include comments for var declarations to explain what they represent, especially when names are unrevealing
+  obliv bool tsign = false; //! do these declarations need to be here, or can they be in the scope where they are used? especially for temp variables
   obliv bool tmpsign = false;
   obliv bool newtsign = false;
 
-  ~obliv(en) {
-  obig_init(&t, MAXN + 1);
-  obig_init(&r, MAXN + 1);
-  obig_init(&newt, MAXN + 1);
-  obig_init(&newr, MAXN + 1);
-  obig_init(&q, MAXN + 1);
-  obig_init(&rem, MAXN + 1);
-  obig_init(&tmp, MAXN + 1);
-  obig_init(&zero, MAXN + 1);
+  ~obliv(_en) { //! I added _ to variable name, following pythons convention of unused vars. This might violate C conventions though...at least give it a name that makes it clear it is not used.
+    obig_init(&t, MAXN + 1);
+    obig_init(&r, MAXN + 1);
+    obig_init(&newt, MAXN + 1);
+    obig_init(&newr, MAXN + 1);
+    obig_init(&q, MAXN + 1);
+    obig_init(&rem, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
   }
+  
   newt.data[0] = 1;
   obig_copy(&r, M);
   obig_copy(&newr, A);
@@ -32,10 +34,10 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
   obig *newtref = &newt;
   obig *tmpref = &tmp;
 
-  int maxiter = MAXN*8;
-  while(maxiter--){
-    obliv if(obig_cmp(newr, zero) != 0){
-
+  int maxiter = MAXN * 8; //! why? 
+  
+  while (maxiter--) {
+    obliv if (obig_cmp(newr, zero) != 0) {
       obig_div_mod(qref, remref, r, newr);
 
       obig_copy(rref, newr);
@@ -46,16 +48,18 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
 
       obig_mul(remref, q, newt);
 
-      obliv if(tsign == tmpsign){
-        obliv if(obig_cmp(rem, t) > 0){
+      obliv if (tsign == tmpsign) {
+        obliv if (obig_cmp(rem, t) > 0) {
           newtsign = !newtsign;
           obig_sub(newtref, rem, t);
         }
-        obliv if(obig_cmp(rem, t) <= 0)
+        
+        obliv if (obig_cmp(rem, t) <= 0) {
           obig_sub(newtref, t, rem);
+        }
       }
 
-      obliv if(tsign != tmpsign){
+      obliv if (tsign != tmpsign) {
         newtsign = !newtsign;
         obig_add(newtref, t, rem);
       }
@@ -64,19 +68,22 @@ void mult_inverse(obig *out, obig A, obig M) obliv{
       tsign = tmpsign;
     }
   }
-  obliv if(tsign == true)
+  
+  obliv if (tsign == true) {
     obig_sub(tref, M, t);
+  }
 
   obig_copy(out, t);
-  ~obliv(en) {
-  obig_free(&t);
-  obig_free(&r);
-  obig_free(&newr);
-  obig_free(&newt);
-  obig_free(&q);
-  obig_free(&rem);
-  obig_free(&tmp);
-  obig_free(&zero);
+
+  ~obliv(_en) { //! 
+     obig_free(&t);
+     obig_free(&r);
+     obig_free(&newr);
+     obig_free(&newt);
+     obig_free(&q);
+     obig_free(&rem);
+     obig_free(&tmp);
+     obig_free(&zero);
   }
 }
 
@@ -85,25 +92,25 @@ lambda = (3x^2 + a)/2y
 resx = lambda^2 - 2x
 resy = lambda(x - resx) - y
 */
-void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv{
+void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv {
   obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, tmp, tt, tx, ty, final_x, final_y;
 
   ~obliv(en) {
-  obig_init(&lambda, 2*MAXN);
-  obig_init(&lambda_mod, MAXN + 1);
-  obig_init(&lambda2, 2*MAXN);
-  obig_init(&lambda2_mod, MAXN + 1);
-  obig_init(&x2, 2*MAXN);
-  obig_init(&x2_mod, MAXN + 1);
-  obig_init(&num, MAXN + 1);
-  obig_init(&den, MAXN + 1);
-  obig_init(&tmp, MAXN + 1);
-  obig_init(&tt, MAXN + 1);
-  obig_init(&zero, MAXN + 1);
-  obig_init(&final_x, MAXN + 1);
-  obig_init(&final_y, MAXN + 1);
-  obig_init(&tx, MAXN + 1);
-  obig_init(&ty, MAXN + 1);
+    obig_init(&lambda, 2 * MAXN);
+    obig_init(&lambda_mod, MAXN + 1);
+    obig_init(&lambda2, 2 * MAXN);
+    obig_init(&lambda2_mod, MAXN + 1);
+    obig_init(&x2, 2 * MAXN);
+    obig_init(&x2_mod, MAXN + 1);
+    obig_init(&num, MAXN + 1);
+    obig_init(&den, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&tt, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
+    obig_init(&final_x, MAXN + 1);
+    obig_init(&final_y, MAXN + 1);
+    obig_init(&tx, MAXN + 1);
+    obig_init(&ty, MAXN + 1);
   }
   
   obig *numref = &num;
@@ -118,18 +125,27 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_div_mod(&tmp, &x2_mod, x2, p);
 
   obig_add(&num, x2_mod, x2_mod);
-  obliv if(obig_cmp(num, p) >= 0)
+  obliv if (obig_cmp(num, p) >= 0) {
     obig_sub(numref, num, p);
+  }
+  
   obig_add(&num, num, x2_mod);
-  obliv if(obig_cmp(num, p) >= 0)
+  
+  obliv if (obig_cmp(num, p) >= 0) {
     obig_sub(numref, num, p);
+  }
+  
   obig_add(&num, num, a);
-  obliv if(obig_cmp(num, p) >= 0)
+  
+  obliv if (obig_cmp(num, p) >= 0) {
     obig_sub(numref, num, p);
+  }
 
   obig_add(&den, py, py);
-  obliv if(obig_cmp(den, p) >= 0)
+  
+  obliv if (obig_cmp(den, p) >= 0) {
     obig_sub(denref, den, p);
+  }  
 
   mult_inverse(&den, den, p);
   obig_mul(&lambda, num, den);
@@ -138,23 +154,29 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
 
-  obliv if(obig_cmp(lambda2_mod, px) >= 0)
+  obliv if (obig_cmp(lambda2_mod, px) >= 0) {
     obig_sub(txref, lambda2_mod, px);
-  obliv if(obig_cmp(lambda2_mod, px) < 0){
+  }
+  
+  obliv if (obig_cmp(lambda2_mod, px) < 0) {
     obig_sub(txref, px, lambda2_mod);
     obig_sub(txref, p, tx);
   }
   
-  obliv if(obig_cmp(tx, px) >= 0)
+  obliv if (obig_cmp(tx, px) >= 0) {
     obig_sub(final_xref, tx, px);
-  obliv if(obig_cmp(tx, px) < 0){
+  }
+  
+  obliv if (obig_cmp(tx, px) < 0) {
     obig_sub(final_xref, px, tx);
     obig_sub(final_xref, p, final_x);
   }
 
-  obliv if(obig_cmp(px, final_x) >= 0)
+  obliv if (obig_cmp(px, final_x) >= 0) {
     obig_sub(ttref, px, final_x);
-  obliv if(obig_cmp(px, final_x) < 0){
+  }
+  
+  obliv if (obig_cmp(px, final_x) < 0) {
     obig_sub(ttref, final_x, px);
     obig_sub(ttref, p, tt);
   }
@@ -162,9 +184,11 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_mul(&lambda, lambda_mod, tt);
   obig_div_mod(&tmp, &ty, lambda, p);
   
-  obliv if(obig_cmp(ty, py) >= 0)
+  obliv if (obig_cmp(ty, py) >= 0) {
     obig_sub(final_yref, ty, py);
-  obliv if(obig_cmp(ty, py) < 0){
+  }
+  
+  obliv if (obig_cmp(ty, py) < 0) {
     obig_sub(final_yref, py, ty);
     obig_sub(final_yref, p, final_y);
   }
@@ -172,22 +196,22 @@ void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv
   obig_copy(resx, final_x);
   obig_copy(resy, final_y);
 
-  ~obliv(en) {
-  obig_free(&x2);
-  obig_free(&x2_mod);
-  obig_free(&lambda);
-  obig_free(&lambda_mod);
-  obig_free(&lambda2);
-  obig_free(&lambda2_mod);
-  obig_free(&num);
-  obig_free(&den);
-  obig_free(&tmp);
-  obig_free(&tt);
-  obig_free(&zero);
-  obig_free(&final_x);
-  obig_free(&final_y);
-  obig_free(&tx);
-  obig_free(&ty);
+  ~obliv(_en) {
+    obig_free(&x2);
+    obig_free(&x2_mod);
+    obig_free(&lambda);
+    obig_free(&lambda_mod);
+    obig_free(&lambda2);
+    obig_free(&lambda2_mod);
+    obig_free(&num);
+    obig_free(&den);
+    obig_free(&tmp);
+    obig_free(&tt);
+    obig_free(&zero);
+    obig_free(&final_x);
+    obig_free(&final_y);
+    obig_free(&tx);
+    obig_free(&ty);
   }
 }
 
@@ -196,23 +220,23 @@ lambda = (yq - yp)/(xq - xp)
 resx = lambda^2 - xp - xq
 resy = lambda(xp - resx) - yp
 */
-void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv{
+void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv {
   obig zero, lambda, lambda_mod, lambda2, lambda2_mod, num, den, tt, tx, ty, tmp, final_x, final_y;
 
-  ~obliv(en) {
-  obig_init(&lambda, 2*MAXN);
-  obig_init(&lambda_mod, MAXN + 1);
-  obig_init(&lambda2, 2*MAXN);
-  obig_init(&lambda2_mod, MAXN + 1);
-  obig_init(&num, MAXN + 1);
-  obig_init(&den, MAXN + 1);
-  obig_init(&tt, MAXN + 1);
-  obig_init(&tmp, MAXN + 1);
-  obig_init(&zero, MAXN + 1);
-  obig_init(&final_x, MAXN + 1);
-  obig_init(&final_y, MAXN + 1);
-  obig_init(&tx, MAXN + 1);
-  obig_init(&ty, MAXN + 1);
+  ~obliv(_en) {
+    obig_init(&lambda, 2 * MAXN);
+    obig_init(&lambda_mod, MAXN + 1);
+    obig_init(&lambda2, 2 * MAXN);
+    obig_init(&lambda2_mod, MAXN + 1);
+    obig_init(&num, MAXN + 1);
+    obig_init(&den, MAXN + 1);
+    obig_init(&tt, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
+    obig_init(&final_x, MAXN + 1);
+    obig_init(&final_y, MAXN + 1);
+    obig_init(&tx, MAXN + 1);
+    obig_init(&ty, MAXN + 1);
   }
 
   obig *numref = &num;
@@ -223,16 +247,20 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig *tyref = &ty;
   obig *ttref =&tt;
 
-  obliv if(obig_cmp(qy, py) >= 0)
+  obliv if (obig_cmp(qy, py) >= 0) {
     obig_sub(numref, qy, py);
-  obliv if(obig_cmp(qy, py) < 0){
+  }
+  
+  obliv if (obig_cmp(qy, py) < 0) {
     obig_sub(numref, py, qy);
     obig_sub(numref, p, num);
   }
 
-  obliv if(obig_cmp(qx, px) >= 0)
+  obliv if (obig_cmp(qx, px) >= 0) {
     obig_sub(denref, qx, px);
-  obliv if(obig_cmp(qx, px) < 0){
+  }
+  
+  obliv if (obig_cmp(qx, px) < 0) {
     obig_sub(denref, px, qx);
     obig_sub(denref, p, den);
   }
@@ -244,23 +272,29 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_mul(&lambda2, lambda_mod, lambda_mod);
   obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
   
-  obliv if(obig_cmp(lambda2_mod, px) >= 0)
+  obliv if (obig_cmp(lambda2_mod, px) >= 0) {
     obig_sub(txref, lambda2_mod, px);
-  obliv if(obig_cmp(lambda2_mod, px) < 0){
+  }
+  
+  obliv if (obig_cmp(lambda2_mod, px) < 0) {
     obig_sub(txref, px, lambda2_mod);
     obig_sub(txref, p, tx);
   }
 
-  obliv if(obig_cmp(tx, qx) >= 0)
+  obliv if (obig_cmp(tx, qx) >= 0) {
     obig_sub(final_xref, tx, qx);
-  obliv if(obig_cmp(tx, qx) < 0){
+  }
+  
+  obliv if (obig_cmp(tx, qx) < 0) {
     obig_sub(final_xref, qx, tx);
     obig_sub(final_xref, p, final_x);
   }
 
-  obliv if(obig_cmp(px, final_x) >= 0)
+  obliv if (obig_cmp(px, final_x) >= 0) {
     obig_sub(ttref, px, final_x);
-  obliv if(obig_cmp(px, final_x) < 0){
+  }
+  
+  obliv if (obig_cmp(px, final_x) < 0) {
     obig_sub(ttref, final_x, px);
     obig_sub(ttref, p, tt);
   }
@@ -268,9 +302,11 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_mul(&lambda, lambda_mod, tt);
   obig_div_mod(&tmp, &ty, lambda, p);
   
-  obliv if(obig_cmp(ty, py) >= 0)
+  obliv if (obig_cmp(ty, py) >= 0) {
     obig_sub(final_yref, ty, py);
-  obliv if(obig_cmp(ty, py) < 0){
+  }
+  
+  obliv if (obig_cmp(ty, py) < 0) {
     obig_sub(final_yref, py, ty);
     obig_sub(final_yref, p, final_y);
   }
@@ -279,24 +315,26 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_copy(resy, final_y);
 
   ~obliv(en) {
-  obig_free(&lambda);
-  obig_free(&lambda_mod);
-  obig_free(&lambda2);
-  obig_free(&lambda2_mod);
-  obig_free(&num);
-  obig_free(&den);
-  obig_free(&tt);
-  obig_free(&tmp);
-  obig_free(&zero);
-  obig_free(&final_x);
-  obig_free(&final_y);
-  obig_free(&tx);
-  obig_free(&ty);
+    obig_free(&lambda);
+    obig_free(&lambda_mod);
+    obig_free(&lambda2);
+    obig_free(&lambda2_mod);
+    obig_free(&num);
+    obig_free(&den);
+    obig_free(&tt);
+    obig_free(&tmp);
+    obig_free(&zero);
+    obig_free(&final_x);
+    obig_free(&final_y);
+    obig_free(&tx);
+    obig_free(&ty);
   }
 }
 
+//! is this used at all now?  (if not, at least include comments explaining this, or may cut from this altogether, since its not meant to be the library code)
+
 // elliptic curve point multiplication using montgomery ladder: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
-void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv{
+void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv {
   obig Nx, Ny, Qx, Qy;
   obliv bool initial = true;
   obliv uint8_t t;
@@ -350,17 +388,18 @@ void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d,
 }
 
 // elliptic curve point multiplication
-void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv{
+void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv {
   obig Nx, Ny, Qx, Qy;
   obliv bool initial = true;
   obliv uint8_t t;
 
   ~obliv(en) {
-  obig_init(&Nx, MAXN);
-  obig_init(&Ny, MAXN);
-  obig_init(&Qx, MAXN);
-  obig_init(&Qy, MAXN);
+    obig_init(&Nx, MAXN);
+    obig_init(&Ny, MAXN);
+    obig_init(&Qx, MAXN);
+    obig_init(&Qy, MAXN);
   }
+  
   obig_copy(&Nx, gx);
   obig_copy(&Ny, gy);
 
@@ -369,15 +408,14 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig *Nxref = &Nx;
   obig *Nyref = &Ny;
   
-  for(int ii = 0; ii < d.digits; ii++){
-    for(int j = 0; j < 8; j++){
+  for (int ii = 0; ii < d.digits; ii++) {
+    for (int j = 0; j < 8; j++) {
       t = d.data[ii] & (1 << j);
-      obliv if(t > 0){
-        
-        obliv if(initial == false)
+      obliv if (t > 0) {
+        obliv if (initial == false) {
           pointAdd(Qxref, Qyref, Qx, Qy, Nx, Ny, p);
-        
-        obliv if(initial == true){
+        }
+        obliv if (initial == true) {
           initial = false;
           obig_copy(Qxref, Nx);
           obig_copy(Qyref, Ny);
@@ -390,23 +428,26 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig_copy(resy, Qy);
 
   ~obliv(en){
-  obig_free(&Nx);
-  obig_free(&Ny);
-  obig_free(&Qx);
-  obig_free(&Qy);
+    obig_free(&Nx);
+    obig_free(&Ny);
+    obig_free(&Qx);
+    obig_free(&Qy);
   }
 }
 
-bool compare(uint8_t *x, uint8_t *y, int len){
-  for(int i = 0; i < len; i++){
-    if(x[i] != y[i])
+bool compare(uint8_t *x, uint8_t *y, int len) {
+  for (int i = 0; i < len; i++) {
+    if (x[i] != y[i]) {
       return false;
+    }
   }
+  
   return true;
 }
 
-void feedOpaqueInputs(ProtocolDesc pd, void *dest, const void *src, int len, int party){
-  if(ocCurrentParty() == party){
+//! these should move into main oblivc code, not specific to decentralizedCA
+void feedOpaqueInputs(ProtocolDesc pd, void *dest, const void *src, int len, int party) {
+  if (ocCurrentParty() == party) {
     memcpy(dest, src, len);
     osend(&pd, party^3, dest, len);
   }
@@ -414,19 +455,20 @@ void feedOpaqueInputs(ProtocolDesc pd, void *dest, const void *src, int len, int
     orecv(&pd, party^3, dest, len);
 }
 
-void dualexFeedOpaqueInputs(ProtocolDesc pd, void *dest1, void *dest2, const void *src1, const void *src2, int len){
-  if(ocCurrentParty() == 1){
+void dualexFeedOpaqueInputs(ProtocolDesc pd, void *dest1, void *dest2, const void *src1, const void *src2, int len) {
+  if (ocCurrentParty() == 1) {
     memcpy(dest1, src1, len);
     osend(&pd, 2, dest1, len);
     orecv(&pd, 2, dest2, len);
-  }else{
+  } else {
     memcpy(dest2, src2, len);
     osend(&pd, 1, dest2, len);
     orecv(&pd, 1, dest1, len);
   }
 }
 
-void signCertificate(void* args){
+//! this is the first function that really belongs in oblivCA.oc
+void signCertificate(void* args) {
   protocolIO *io = args;
   obig pk1, pk2, pk, k1, k2, k, Q_x, Q_y, R_x, R_y, zero;
   obig p, g_x, g_y, n, a, e;
@@ -473,31 +515,36 @@ void signCertificate(void* args){
   obig_import_pointed_be(&n, io->n, MAXN);
   obig_import_pointed_be(&a, io->a, MAXN);
 
+
+  //! add a comment before this explaning what is going on
+  //! can the protocol be either a compiler definition, e.g., #ifdef DUAL_EX ... #else ... or determined dynamically?
+  //! it will be a pain, and confusing for any demos/experiments, to need to keep switching this code
   feedOpaqueInputs(io->pd, &e1, io->e1, E_LENGTH, 1); // call this function for Yao
   feedOpaqueInputs(io->pd, &e2, io->e2, E_LENGTH, 2); // call this function for Yao
   //dualexFeedOpaqueInputs(io->pd, &e1, &e2, io->e1, io->e2, E_LENGTH); // call this function for DualEx
 
-  assert(compare(e1,e2,E_LENGTH));
+  assert(compare(e1, e2, E_LENGTH));
   obig_import_pointed_be(&e, e1, E_LENGTH);
   fprintf(stderr, "Working!!!\n");
 
-  //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
+  // signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
 
-  //1. Select an integer d [1, n-1]
+  // 1. Select an integer d <- [1, n-1] .  //!? so, which variable corresponds to d?   
   obig_xor(&pk, pk1, pk2);
   obig_xor(&k, k1, k2);
   
-  //2. Compute Q=dG
-  //curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);
+  // 2. Compute Q = dG
+  //curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);  //!? confusing to have this here commented out - its the one what matches the earlier comment
   curveMult(&R_x, &R_y, g_x, g_y, k, a, p);
   
   //3: r = Q_x mod n  
   obig_div_mod(&tmp, &r, R_x, n);
     
-  //Check whether r is zero
+  // Check whether r is zero
   r_comp_result = obig_cmp(r, zero);
 
-  //7. s = k^-1 (e + rd) mod n
+  //!? what happened to steps 4-6?
+  // 7. s = k^-1 (e + rd) mod n
   mult_inverse(&k_inverse, k, n);
   obig_mul(&interim, r, pk);
   obig_add(&interim, e, interim);
@@ -505,22 +552,25 @@ void signCertificate(void* args){
   obig_mul(&interim, k_inverse, interim_mod);
   obig_div_mod(&tmp, &s, interim, n);
 
-  //Check whether s is zero
+  // Check whether s is zero
   s_comp_result = obig_cmp(s, zero);
 
-  //reveal all outputs
+  // Reveal all outputs
   revealOblivInt(&io->RisZero, r_comp_result, 0);
-
   revealOblivInt(&io->SisZero, s_comp_result, 0);
 
-  fprintf(stderr,"Yao gate count: %llu\n", yaoGateCount());
+  //! defining a logging macro for outputting stats like this
+  fprintf(stderr, "Yao gate count: %llu\n", yaoGateCount());
 
-  for(int ii = 0; ii < r.digits; ii++)
+  //! seems like there should be a revealOblivCharArray(...) function
+  for (int ii = 0; ii < r.digits; ii++) {
     revealOblivChar(&io->r[ii], r.data[ii], 0);
-
-  for(int ii = 0; ii < s.digits; ii++)
+  }
+  
+  for(int ii = 0; ii < s.digits; ii++) {
     revealOblivChar(&io->s[ii], s.data[ii], 0);
-
+  }
+  
   obig_free(&pk1);
   obig_free(&pk2);
   obig_free(&pk);
