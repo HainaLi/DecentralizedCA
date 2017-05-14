@@ -4,7 +4,7 @@
 #include "util.h"
 
 
-int main(int argc,char *argv[]){
+int main(int argc, char *argv[]) {
   ProtocolDesc pd;
   protocolIO io;
   double start, end;
@@ -30,24 +30,28 @@ int main(int argc,char *argv[]){
   //char * rand_key_3 = read_hex_file("rand_key1.txt"); 
   //printf("%02hhX\n", rand_key_1[0]);
 
-  if(strcmp(argv[2], "--") == 0)
+  if (strcmp(argv[2], "--") == 0) {
     party = 1;
-  else
+  } else {
     party = 2;
+  }
+  
+  setCurrentParty(&pd, party); //! moved this - hope it didn't break anything, but makes more sense here
+  io.pd = pd;
 
   const char* remote_host = (strcmp(argv[2], "--") == 0 ? NULL : argv[2]);
   ocTestUtilTcpOrDie(&pd, remote_host, argv[1]);
 
-  if(party == 1){
+  if (party == 1) {
     memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
     memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
     memcpy(io.e1, e_hexstring, E_LENGTH);
-  }
-
-  else if(party == 2){
+  } else if (party == 2) {
     memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
     memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
     memcpy(io.e2, e_hexstring, E_LENGTH);
+  } else {
+    assert (false); //! or something that will terminate - programming defensively
   }
 
   memcpy(io.p, p_hexstring, MAXN);
@@ -56,27 +60,33 @@ int main(int argc,char *argv[]){
   memcpy(io.g_y, g_y_hexstring, MAXN);
   memcpy(io.n, n_hexstring, MAXN);
 
-  setCurrentParty(&pd, party);
-  io.pd = pd;
   start = wallClock();
+  
+  //! would be helpful to not need recompile to switch protocols. maybe this can just be an option to main
   //execYaoProtocol(&pd, signCertificate, &io);
   execDualexProtocol(&pd, signCertificate, &io);
+  
   end = wallClock();
+  
   cleanupProtocol(&pd);
   fprintf(stderr, "\nParty %d, Elapsed Time: %f seconds, \n", party, end - start);
 
-  if(!io.RisZero)
+    //!? this sounds like the opposite - if RisZero means R == 0 and the parameters are bad, shouldn't it be if (io.RisZero) ?
+    //! or is meaning filpped?
+  if (!io.RisZero)
     fprintf(stderr, "\nError: r is zero, Please retry with different k\n");
-  if(!io.SisZero)
+  if (!io.SisZero)
     fprintf(stderr, "\nError: s is zero, Please retry with different k\n");
 
-  if(party == 1){
+  if (party == 1) {
     fprintf(stderr, "\nr is :\n");
-    for(int i = 0; i < MAXN; i++)
+    for (int i = 0; i < MAXN; i++) {
       fprintf(stderr,"0x%02hhX ", io.r[MAXN - 1 - i]);
+    }
     fprintf(stderr, "\ns is :\n");
-    for(int i = 0; i < MAXN; i++)
+    for (int i = 0; i < MAXN; i++) {
       fprintf(stderr,"0x%02hhX ", io.s[MAXN - 1 - i]);
+    }
   }
   return 0;
 }
