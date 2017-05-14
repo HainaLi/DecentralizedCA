@@ -405,7 +405,7 @@ bool compare(uint8_t *x, uint8_t *y, int len){
   return true;
 }
 
-void feedOpaque(ProtocolDesc pd, void *dest, const void *src, int len, int party){
+void feedOpaqueInputs(ProtocolDesc pd, void *dest, const void *src, int len, int party){
   if(ocCurrentParty() == party){
     memcpy(dest, src, len);
     osend(&pd, party^3, dest, len);
@@ -414,7 +414,7 @@ void feedOpaque(ProtocolDesc pd, void *dest, const void *src, int len, int party
     orecv(&pd, party^3, dest, len);
 }
 
-void feedOpaqueDual(ProtocolDesc pd, void *dest1, void *dest2, const void *src1, const void *src2, int len){
+void dualexFeedOpaqueInputs(ProtocolDesc pd, void *dest1, void *dest2, const void *src1, const void *src2, int len){
   if(ocCurrentParty() == 1){
     memcpy(dest1, src1, len);
     osend(&pd, 2, dest1, len);
@@ -473,12 +473,15 @@ void signCertificate(void* args){
   obig_import_pointed_be(&n, io->n, MAXN);
   obig_import_pointed_be(&a, io->a, MAXN);
 
-  //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
-  //feedOpaque(io->pd, &e1, &io->e1, E_LENGTH, 1); // call this function for Yao
-  //feedOpaque(io->pd, &e2, &io->e2, E_LENGTH, 2); // call this function for Yao
-  feedOpaqueDual(io->pd, &e1, &e2, &io->e1, &io->e2, E_LENGTH); // call this function for DualEx
+  feedOpaqueInputs(io->pd, &e1, io->e1, E_LENGTH, 1); // call this function for Yao
+  feedOpaqueInputs(io->pd, &e2, io->e2, E_LENGTH, 2); // call this function for Yao
+  //dualexFeedOpaqueInputs(io->pd, &e1, &e2, io->e1, io->e2, E_LENGTH); // call this function for DualEx
+
   assert(compare(e1,e2,E_LENGTH));
   obig_import_pointed_be(&e, e1, E_LENGTH);
+  fprintf(stderr, "Working!!!\n");
+
+  //signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
 
   //1. Select an integer d [1, n-1]
   obig_xor(&pk, pk1, pk2);
