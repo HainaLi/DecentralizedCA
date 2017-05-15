@@ -23,20 +23,19 @@ int main(int argc, char *argv[]) {
   uint8_t e_hexstring[MAXN]   = {0x0d, 0x80, 0xb4, 0x91, 0x9e, 0x2e, 0xdb, 0x5e, 0x1b, 0xa3, 0xe6, 0x19, 0xe8, 0xb6, 0x0b, 0xfa, 0xd2, 0x5d, 0x16, 0xc4, 0xde, 0xec, 0x05, 0xa7}; 
   
   //uint8_t e_hexstring[MAXN] = {0xa8, 0x55, 0x56, 0xcd, 0x83, 0x51, 0x51, 0x33, 0xf9, 0xee, 0x46, 0x74, 0xb7, 0xec, 0xbc, 0x12, 0x35, 0xaf, 0xc3, 0x2a, 0x21, 0xbc, 0x67, 0x11};
-    //this is the e (hashed value of a template TBSCertificate (to be signed))        //this is the e (hashed value of a template TBSCertificate (to be signed))  
+    //this is the e (hashed value of a template TBSCertificate (to be signed)) 
   
   //read key1 and key3 from file
   //char * rand_key_1 = read_hex_file("rand_key0.txt"); 
   //char * rand_key_3 = read_hex_file("rand_key1.txt"); 
-  //printf("%02hhX\n", rand_key_1[0]);
-
+  
   if (strcmp(argv[2], "--") == 0) {
     party = 1;
   } else {
     party = 2;
   }
   
-  setCurrentParty(&pd, party); //! moved this - hope it didn't break anything, but makes more sense here
+  setCurrentParty(&pd, party);
   io.pd = pd;
 
   const char* remote_host = (strcmp(argv[2], "--") == 0 ? NULL : argv[2]);
