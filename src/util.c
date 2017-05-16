@@ -59,26 +59,13 @@ void hex_string_to_char_array(const char * hex_string) {
 
 }
 
-char * read_hex_file(char * file_name) {
-    int hex_length = 48; 
-    FILE *fp = fopen(file_name,"r");
-    unsigned char c1,c2;
-    int i=0;
-    unsigned char sum;
-    //static unsigned char final_hex[hex_length/2];
-    char * final_hex = (char *) malloc(hex_length/2);
-    for(i=0;i<hex_length/2;i++)
-    {
-            c1 = hex_to_int(fgetc(fp));
-            c2 = hex_to_int(fgetc(fp));
-            
-            sum = c1<<4 | c2;
-            final_hex[i] = sum;
-            //printf("%i ",sum);
+bool compare(uint8_t *x, uint8_t *y, int len) {
+  for (int i = 0; i < len; i++) {
+    if (x[i] != y[i]) {
+      return false;
     }
-    //printf("\n");
-    fclose(fp);
-    return final_hex; 
-
+  }
+  
+  return true;
 }
 

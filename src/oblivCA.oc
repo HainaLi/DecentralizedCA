@@ -1,24 +1,22 @@
-#include <stdio.h>
-#include <assert.h>
 #include <obliv_common.h>
 #include "oblivCA.oh"
 
-//! prefer to separate generic ecc library functions into a separate file - the main CA code should be able to use any library implementation of these
-// Extended Euclid's Algorithm for Multiplicative Inverse
+// Extended Euclid's Algorithm for Multiplicative Inverse : A^-1 mod M
+// Refer to : https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
 void mult_inverse(obig *out, obig A, obig M) obliv {
-  obig t, r, newt, newr, q, zero, tmp, rem; //! I don't want excessive comments, but would be helpful to include comments for var declarations to explain what they represent, especially when names are unrevealing
-  obliv bool tsign = false; //! do these declarations need to be here, or can they be in the scope where they are used? especially for temp variables
-  obliv bool tmpsign = false;
+  obig t, r, newt, newr, quotient, zero, tmp, remainder, intermediate; // 'r' and 'newr' are used for repetitive division to find GCD, while 't' and 'newt' simultaneously keep track of inverse. Finally, when 'r' has the GCD, 't' has the inverse of 'A'
+  obliv bool tsign = false;
   obliv bool newtsign = false;
 
-  ~obliv(_en) { //! I added _ to variable name, following pythons convention of unused vars. This might violate C conventions though...at least give it a name that makes it clear it is not used.
+  ~obliv(_en) {
     obig_init(&t, MAXN + 1);
     obig_init(&r, MAXN + 1);
     obig_init(&newt, MAXN + 1);
     obig_init(&newr, MAXN + 1);
-    obig_init(&q, MAXN + 1);
-    obig_init(&rem, MAXN + 1);
+    obig_init(&quotient, MAXN + 1);
+    obig_init(&remainder, MAXN + 1);
     obig_init(&tmp, MAXN + 1);
+    obig_init(&intermediate, MAXN + 1);
     obig_init(&zero, MAXN + 1);
   }
   
@@ -26,42 +24,43 @@ void mult_inverse(obig *out, obig A, obig M) obliv {
   obig_copy(&r, M);
   obig_copy(&newr, A);
 
-  obig *qref = &q;
-  obig *remref = &rem;
+  obig *quotientref = &quotient;
+  obig *remainderref = &remainder;
   obig *rref = &r;
   obig *newrref = &newr;
   obig *tref = &t;
   obig *newtref = &newt;
   obig *tmpref = &tmp;
+  obig *intermediateref = &intermediate;
 
-  int maxiter = MAXN * 8; //! why? 
+  int maxiter = MAXN * 8; //! why? - gcd takes log(n) iterations in worst case, which is the number of bits of n
   
   while (maxiter--) {
     obliv if (obig_cmp(newr, zero) != 0) {
-      obig_div_mod(qref, remref, r, newr);
+      obig_div_mod(quotientref, remainderref, r, newr);
 
       obig_copy(rref, newr);
-      obig_copy(newrref, rem);
+      obig_copy(newrref, remainder);
 
       obig_copy(tmpref, newt);
-      tmpsign = newtsign;
+      obliv bool tmpsign = newtsign;
 
-      obig_mul(remref, q, newt);
+      obig_mul(intermediateref, quotient, newt);
 
       obliv if (tsign == tmpsign) {
-        obliv if (obig_cmp(rem, t) > 0) {
+        obliv if (obig_cmp(intermediate, t) > 0) {
           newtsign = !newtsign;
-          obig_sub(newtref, rem, t);
+          obig_sub(newtref, intermediate, t);
         }
         
-        obliv if (obig_cmp(rem, t) <= 0) {
-          obig_sub(newtref, t, rem);
+        obliv if (obig_cmp(intermediate, t) <= 0) {
+          obig_sub(newtref, t, intermediate);
         }
       }
 
       obliv if (tsign != tmpsign) {
         newtsign = !newtsign;
-        obig_add(newtref, t, rem);
+        obig_add(newtref, t, intermediate);
       }
 
       obig_copy(tref, tmp);
@@ -75,15 +74,16 @@ void mult_inverse(obig *out, obig A, obig M) obliv {
 
   obig_copy(out, t);
 
-  ~obliv(_en) { //! 
+  ~obliv(_en) {
      obig_free(&t);
      obig_free(&r);
      obig_free(&newr);
      obig_free(&newt);
-     obig_free(&q);
-     obig_free(&rem);
+     obig_free(&quotient);
+     obig_free(&remainder);
      obig_free(&tmp);
      obig_free(&zero);
+     obig_free(&intermediate);
   }
 }
 
@@ -95,7 +95,7 @@ resy = lambda(x - resx) - y
 void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv {
   obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, tmp, tt, tx, ty, final_x, final_y;
 
-  ~obliv(en) {
+  ~obliv(_en) {
     obig_init(&lambda, 2 * MAXN);
     obig_init(&lambda_mod, MAXN + 1);
     obig_init(&lambda2, 2 * MAXN);
@@ -314,7 +314,7 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   obig_copy(resx, final_x);
   obig_copy(resy, final_y);
 
-  ~obliv(en) {
+  ~obliv(_en) {
     obig_free(&lambda);
     obig_free(&lambda_mod);
     obig_free(&lambda2);
@@ -331,9 +331,9 @@ void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p
   }
 }
 
-//! is this used at all now?  (if not, at least include comments explaining this, or may cut from this altogether, since its not meant to be the library code)
 
 // elliptic curve point multiplication using montgomery ladder: https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
+/* ----- No longer used -----
 void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv {
   obig Nx, Ny, Qx, Qy;
   obliv bool initial = true;
@@ -386,6 +386,7 @@ void curveMultMontgomeryLadder(obig* resx, obig* resy, obig gx, obig gy, obig d,
   obig_free(&Qy);
   }
 }
+*/
 
 // elliptic curve point multiplication
 void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv {
@@ -393,7 +394,7 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obliv bool initial = true;
   obliv uint8_t t;
 
-  ~obliv(en) {
+  ~obliv(_en) {
     obig_init(&Nx, MAXN);
     obig_init(&Ny, MAXN);
     obig_init(&Qx, MAXN);
@@ -427,7 +428,7 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   obig_copy(resx, Qx);
   obig_copy(resy, Qy);
 
-  ~obliv(en){
+  ~obliv(_en){
     obig_free(&Nx);
     obig_free(&Ny);
     obig_free(&Qx);
@@ -435,24 +436,14 @@ void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p)
   }
 }
 
-bool compare(uint8_t *x, uint8_t *y, int len) {
-  for (int i = 0; i < len; i++) {
-    if (x[i] != y[i]) {
-      return false;
-    }
-  }
-  
-  return true;
-}
-
 //! these should move into main oblivc code, not specific to decentralizedCA
 void feedOpaqueInputs(ProtocolDesc pd, void *dest, const void *src, int len, int party) {
   if (ocCurrentParty() == party) {
     memcpy(dest, src, len);
     osend(&pd, party^3, dest, len);
-  }
-  else
+  } else {
     orecv(&pd, party^3, dest, len);
+  }
 }
 
 void dualexFeedOpaqueInputs(ProtocolDesc pd, void *dest1, void *dest2, const void *src1, const void *src2, int len) {
@@ -467,18 +458,77 @@ void dualexFeedOpaqueInputs(ProtocolDesc pd, void *dest1, void *dest2, const voi
   }
 }
 
-//! this is the first function that really belongs in oblivCA.oc
+void generatePublicKey(void* args) {
+  protocolIO *io = args;
+  obig pk1, pk2, pk, Q_x, Q_y;
+  obig p, g_x, g_y, n, a;
+  obliv uint8_t pk1_c[MAXN], pk2_c[MAXN];
+
+  obig_init(&pk1, MAXN);
+  obig_init(&pk2, MAXN);
+  obig_init(&pk, MAXN);
+  obig_init(&p, MAXN);
+  obig_init(&g_x, MAXN);
+  obig_init(&g_y, MAXN);
+  obig_init(&Q_x, MAXN);
+  obig_init(&Q_y, MAXN);
+  obig_init(&n, MAXN);
+  obig_init(&a, MAXN);
+ 
+  feedOblivCharArray(pk1_c, io->private_key_share1, MAXN, 1);
+  feedOblivCharArray(pk2_c, io->private_key_share2, MAXN, 2);
+
+  obig_import_opointed_be(&pk1, pk1_c, MAXN);
+  obig_import_opointed_be(&pk2, pk2_c, MAXN);
+  obig_import_pointed_be(&p, io->p, MAXN);
+  obig_import_pointed_be(&g_x, io->g_x, MAXN);
+  obig_import_pointed_be(&g_y, io->g_y, MAXN);
+  obig_import_pointed_be(&n, io->n, MAXN);
+  obig_import_pointed_be(&a, io->a, MAXN);
+
+
+  // Public Key Generation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1
+
+  // 1. Select an integer d <- [1, n-1], here private key 'pk' corresponds to 'd' 
+  obig_xor(&pk, pk1, pk2);
+  
+  // 2. Compute Q = dG
+  curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);
+
+  // 3. Output Q
+  for (int ii = 0; ii < Q_x.digits; ii++) {
+    revealOblivChar(&io->Q_x[ii], Q_x.data[ii], 0);
+  }
+  
+  for(int ii = 0; ii < Q_y.digits; ii++) {
+    revealOblivChar(&io->Q_y[ii], Q_y.data[ii], 0);
+  }
+
+  printGateCount();
+  
+  obig_free(&pk1);
+  obig_free(&pk2);
+  obig_free(&pk);
+  obig_free(&p);
+  obig_free(&g_x);
+  obig_free(&g_y);
+  obig_free(&Q_x);
+  obig_free(&Q_y);
+  obig_free(&n);
+  obig_free(&a);
+}
+
 void signCertificate(void* args) {
   protocolIO *io = args;
-  obig pk1, pk2, pk, k1, k2, k, Q_x, Q_y, R_x, R_y, zero;
+  obig pk1, pk2, pk, k1, k2, k, R_x, R_y, zero;
   obig p, g_x, g_y, n, a, e;
   obig tmp, r, k_inverse, interim, interim_mod, s;
-  obliv uint8_t k1_c[MAXN], k2_c[MAXN], pk1_c[MAXN], pk2_c[MAXN], r_comp_result, s_comp_result;
+  obliv uint8_t k1_c[MAXN], k2_c[MAXN], pk1_c[MAXN], pk2_c[MAXN];
+  obliv bool r_comp_result = false, s_comp_result = false;
   uint8_t e1[E_LENGTH], e2[E_LENGTH];
 
   obig_init(&pk1, MAXN);
   obig_init(&pk2, MAXN);
-  obig_init(&e, E_LENGTH);
   obig_init(&pk, MAXN);
   obig_init(&k1, MAXN);
   obig_init(&k2, MAXN);
@@ -486,12 +536,11 @@ void signCertificate(void* args) {
   obig_init(&p, MAXN);
   obig_init(&g_x, MAXN);
   obig_init(&g_y, MAXN);
-  obig_init(&Q_x, MAXN);
-  obig_init(&Q_y, MAXN);
   obig_init(&R_x, MAXN);
   obig_init(&R_y, MAXN);
   obig_init(&n, MAXN);
   obig_init(&a, MAXN);
+  obig_init(&e, E_LENGTH);
   obig_init(&tmp, MAXN);
   obig_init(&r, MAXN);
   obig_init(&k_inverse, MAXN);
@@ -515,36 +564,41 @@ void signCertificate(void* args) {
   obig_import_pointed_be(&n, io->n, MAXN);
   obig_import_pointed_be(&a, io->a, MAXN);
 
+  // Hash of tbsCert message is being read in plain text from both the parties
+  if (io->proto == 1) {
+    feedOpaqueInputs(io->pd, &e1, io->e1, E_LENGTH, 1);
+    feedOpaqueInputs(io->pd, &e2, io->e2, E_LENGTH, 2);
+  } else {
+    dualexFeedOpaqueInputs(io->pd, &e1, &e2, io->e1, io->e2, E_LENGTH);
+  }
 
-  //! add a comment before this explaning what is going on
-  //! can the protocol be either a compiler definition, e.g., #ifdef DUAL_EX ... #else ... or determined dynamically?
-  //! it will be a pain, and confusing for any demos/experiments, to need to keep switching this code
-  feedOpaqueInputs(io->pd, &e1, io->e1, E_LENGTH, 1); // call this function for Yao
-  feedOpaqueInputs(io->pd, &e2, io->e2, E_LENGTH, 2); // call this function for Yao
-  //dualexFeedOpaqueInputs(io->pd, &e1, &e2, io->e1, io->e2, E_LENGTH); // call this function for DualEx
-
+  // Assertion is performed if the hash of tbsCert message of both the parties is same
   assert(compare(e1, e2, E_LENGTH));
   obig_import_pointed_be(&e, e1, E_LENGTH);
-  fprintf(stderr, "Working!!!\n");
 
-  // signing operation follows: http://www.secg.org/sec1-v2.pdf page 23 3.2.1, page 44 4.1.3
-
-  // 1. Select an integer d <- [1, n-1] .  //!? so, which variable corresponds to d?   
+  // Combine private key shares from both the parties
   obig_xor(&pk, pk1, pk2);
+
+
+  // Signing operation follows: http://www.secg.org/sec1-v2.pdf page 44 4.1.3
+
+  // 1. Select a curve pair (k, R). First we combine shares from both the parties to obtain 'k'
   obig_xor(&k, k1, k2);
-  
-  // 2. Compute Q = dG
-  //curveMult(&Q_x, &Q_y, g_x, g_y, pk, a, p);  //!? confusing to have this here commented out - its the one what matches the earlier comment
+
+  // Next we get the curve point 'R' corresponding to 'k'
   curveMult(&R_x, &R_y, g_x, g_y, k, a, p);
   
-  //3: r = Q_x mod n  
+  // 2-3. r = R_x mod n
   obig_div_mod(&tmp, &r, R_x, n);
     
   // Check whether r is zero
-  r_comp_result = obig_cmp(r, zero);
+  obliv if (obig_cmp(r, zero) == 0) {
+    r_comp_result = true;
+  }
 
-  //!? what happened to steps 4-6?
-  // 7. s = k^-1 (e + rd) mod n
+  // 4-5. Steps 4-5 generate hash of tbsCert message 'e', which we already have, so we skip this
+
+  // 6. s = k^-1 (e + rd) mod n
   mult_inverse(&k_inverse, k, n);
   obig_mul(&interim, r, pk);
   obig_add(&interim, e, interim);
@@ -553,16 +607,17 @@ void signCertificate(void* args) {
   obig_div_mod(&tmp, &s, interim, n);
 
   // Check whether s is zero
-  s_comp_result = obig_cmp(s, zero);
+  obliv if (obig_cmp(s, zero) == 0) {
+    s_comp_result = true;
+  }
 
   // Reveal all outputs
-  revealOblivInt(&io->RisZero, r_comp_result, 0);
-  revealOblivInt(&io->SisZero, s_comp_result, 0);
+  revealOblivBool(&io->RisZero, r_comp_result, 0);
+  revealOblivBool(&io->SisZero, s_comp_result, 0);
 
-  //! defining a logging macro for outputting stats like this
-  fprintf(stderr, "Yao gate count: %llu\n", yaoGateCount());
+  printGateCount();
 
-  //! seems like there should be a revealOblivCharArray(...) function
+  // 7. Output (r, s)
   for (int ii = 0; ii < r.digits; ii++) {
     revealOblivChar(&io->r[ii], r.data[ii], 0);
   }
@@ -581,8 +636,6 @@ void signCertificate(void* args) {
   obig_free(&p);
   obig_free(&g_x);
   obig_free(&g_y);
-  obig_free(&Q_x);
-  obig_free(&Q_y);
   obig_free(&R_x);
   obig_free(&R_y);
   obig_free(&n);
