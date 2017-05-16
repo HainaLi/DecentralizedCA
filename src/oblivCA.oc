@@ -1,4 +1,3 @@
-#include <obliv_common.h>
 #include "oblivCA.oh"
 
 // Extended Euclid's Algorithm for Multiplicative Inverse : A^-1 mod M
