@@ -6,8 +6,7 @@ int main(int argc, char *argv[]) {
   protocolIO io;       // Data structure to store the input parameters
   double start, end;   // Variables to measure start and end time of Wall Clock
   int party;           // CommandLine Argument: 1 -> Generator and 2 -> Evaluator
-  int operation;       // CommandLine Argument: 1 -> Generate Public Key and 2 -> Sign Certificate
-
+  
   // Input curve parameters: secp192k1
   uint8_t p_hexstring[MAXN]   = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xEE, 0x37};
   uint8_t a_hexstring[MAXN]   = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -37,24 +36,21 @@ int main(int argc, char *argv[]) {
 
   const char* remote_host = (strcmp(argv[2], "--") == 0 ? NULL : argv[2]);
   ocTestUtilTcpOrDie(&pd, remote_host, argv[1]);
-  io.pd = pd;
 
   if (strcmp(argv[3], "yao") == 0) {
     io.proto = 1;
   } else if (strcmp(argv[3], "dualex") == 0) {
     io.proto = 2;
   } else {
-    fprintf(stderr, "\nError: Protocol should either be 'yao' or 'dualex'\n");
-    assert(false);
+    io.proto = 0;
   }
 
   if (strcmp(argv[4], "genPubKey") == 0) {
-    operation = 1;
+    io.operation = 1;
   } else if (strcmp(argv[4], "signCert") == 0) {
-    operation = 2;
+    io.operation = 2;
   } else {
-    fprintf(stderr, "\nError: Operation should either be 'genPubKey' or 'signCert'\n");
-    assert(false);
+    io.operation = 0;
   }
 
   // Load Curve Parameters
@@ -65,15 +61,12 @@ int main(int argc, char *argv[]) {
   memcpy(io.n, n_hexstring, MAXN);
 
 
-  if (operation == 1) { // Execute Protocol to Generate Public Key
+  if (io.operation == 1) { // Execute Protocol to Generate Public Key
 
     if (party == 1) {
       memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
-    } else if (party == 2) {
-      memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
     } else {
-      fprintf(stderr, "\nError: Party should either be Generator or Evaluator\n");
-      assert (false);
+      memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
     }
 
     start = wallClock();
@@ -104,13 +97,10 @@ int main(int argc, char *argv[]) {
       memcpy(io.private_key_share1, rand_key_0, MAXN); // cryptographically generate this
       memcpy(io.k1, rand_key_1, MAXN);  // cryptographically generate this
       memcpy(io.e1, e_hexstring, E_LENGTH);
-    } else if (party == 2) {
+    } else {
       memcpy(io.private_key_share2, rand_key_2, MAXN); // cryptographically generate this
       memcpy(io.k2, rand_key_3, MAXN);  // cryptographically generate this
       memcpy(io.e2, e_hexstring, E_LENGTH);
-    } else {
-      fprintf(stderr, "\nError: Party should either be Generator or Evaluator\n");
-      assert (false);
     }
 
     start = wallClock();
