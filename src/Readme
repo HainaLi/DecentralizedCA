@@ -12,3 +12,20 @@ To run the code:
 - Warning: Both the parties should use the exact same values of proto and operation, else the code will fail!
 
 For now, the code uses secp192k1 curve, and this could be easily extended to any standard Elliptic Curve. The code will output the ECDSA public key pair (Q_x, Q_y) in case of 'genPubKey', and ECDSA signature pair (r,s) in case of 'signCert'.
+
+---
+
+To sign a different string/certificate, or to generate new values for k and pk:
+
+gcc -o setup.out -std=c99 setup.c sha256.c -lgmp
+
+./setup.out generateBigNums p log2n 
+ or 
+ ./setup.out hashMessage log2n 
+ Or omit the p or log2n to use the default secp192k1 curve. 
+ The log2n is the number of bits of your curve. 
+ For example, for the default secp192k1 curve, log2n=192
+
+The big number outputs will be in randkey_0.txt and randkey_1.txt
+The hashMessage output will be printed
+They can then be transfered to oblivCA.c
