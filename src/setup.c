@@ -129,10 +129,6 @@ char * hashMessage(char * message, int log_2_n) {
     sha256_update(&ctx,bit_string_message,strlen(bit_string_message));
     sha256_final(&ctx,hash);
     //print_hash(hash);
-
-    //page 45 Step 5: deriving an integer e from H (but we're calculating using char arrays, so we will leave the output in hex)
-    //ceiling(log2n) < 8*haslen -> output left most log2n bits of hash
-    //ceiling(log2n) >= 8*haslen -> output hash
     
     int hash_len = strlen(hash);
 
@@ -147,30 +143,9 @@ char * hashMessage(char * message, int log_2_n) {
         //return subchar;
     }
     else {
-        print_hash(hash, 32);
+        print_hash(hash, hash_len);
         //return hash; 
     }
-    
-
-
-    //5.2: we're comparing n >= 2^(8*hashlen) , there's no log in gmp, so we're just going to intput the log2(n)
-    /*  
-    mpz_t n_mpf; 
-    mpz_init(n_mpf);
-    mpz_set_str(n_mpf, "115792089237316195423570985008687907853269984665640564039457584007913129639936", 10); //1.16e77
-    gmp_printf("%i\n", n_mpf); 
-
-    mpz_t param_n;
-    mpz_init(param_n);
-    mpz_set_str(param_n, param_string_n, 16);
-
-    gmp_printf("%Zx\n", param_n);
-
-    mpz_clear(param_n);
-    mpz_clear(n_mpf);
-    */
-    
-
     
     
 }
@@ -191,8 +166,9 @@ void prepend(char* s, const char* t)
 }
 
 
-char * generate_big_num(int size) {
+char * generate_big_num(char * p) {
     mpz_t rand_Num;
+    mpz_init(rand_Num);
     unsigned long int i;
     gmp_randstate_t r_state;
 
@@ -204,9 +180,20 @@ char * generate_big_num(int size) {
     gmp_randinit_default (r_state);
     gmp_randseed_ui(r_state, seed);
 
-    mpz_init(rand_Num);
+    
 
-    mpz_urandomb(rand_Num,r_state,size);
+    //generate a big number between 0 and p-2
+
+    //Function: void mpz_urandomm (mpz_t rop, gmp_randstate_t state, const mpz_t n)
+    //Generate a uniform random integer in the range 0 to n-1, inclusive.
+
+    mpz_t p_mpz_t; 
+    mpz_init(p_mpz_t);
+    mpz_set_str(p_mpz_t, p, 16);
+
+    //need to submit p - 1, since we want a number between 0 and p-2, inclusive
+    mpz_sub_ui(p_mpz_t, p_mpz_t, 1);
+    mpz_urandomm(rand_Num,r_state,p_mpz_t);
     //gmp_printf("%Zx\n", rand_Num);
     char * rand_char = mpz_get_str(NULL, 16, rand_Num);
     int rand_length = strlen(rand_char);
@@ -220,6 +207,7 @@ char * generate_big_num(int size) {
     free(rand_char);
     gmp_randclear(r_state);
     mpz_clear(rand_Num);  
+    mpz_clear(p_mpz_t);
     return final; 
 
 }
@@ -264,43 +252,92 @@ char * read_hex_file(char * file_name) {
 
 int main(int argc,char *argv[]) {
     //SHA256 can only hash strings of length less than hashmaxlen = (2^61)-1 = 2.305843e18
-    
-    printf("Generating random big numbers...\n");
-    char * rand0 = generate_big_num(48*4);
-    unsigned int retTime = time(0) + 1;   // Get finishing time.
-    while (time(0) < retTime); 
-    char * rand1 = generate_big_num(48*4);
-    //printf("%c\n", rand0[0]);
-    //printf("%c\n", rand1[0]);
 
-    printf("Printing random big numbers out to rand_key0.txt and rand_key_1.txt...\n");
-    //char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
-    write_hex_string_to_char_array(rand0, "rand_key0.txt"); 
-    write_hex_string_to_char_array(rand1, "rand_key1.txt"); 
-    int log2n = 192; 
+    if (argc < 2) {
+        printf("./setup.out generateBigNums p log2n \n or \n ./setup.out hashMessage log2n \n Or omit the p or log2n to use the default secp192k1 curve. \n The log2n is the number of bits of your curve. \n For example, for the default secp192k1 curve, \n log2n=192 \n");
+    }
 
-    //char * tbscertificate = "../certificates/sample_tbscertificate.txt";
-    //char * keys_file = "rand_keys.txt";
-
-    char * key0 = read_hex_file("rand_key0.txt"); 
-    char * key1 = read_hex_file("rand_key1.txt"); 
-    //printf("%02hhX\n", key0[0]);
-    //printf("%02hhX\n", key1[0]);
-
-    free(rand0);
-    free(rand1); 
-    free(key0);
-    free(key1);
 
     
+    if (strcmp(argv[1], "generateBigNums") == 0) {
+        printf("%s\n", argv[1]);
+        char * p; 
+        int log2n; 
+        if (argc != 4) {
+            //go with the default values of the secp192k1 curve
+            p = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFEE37"; 
+            log2n = 192; 
+        }
+        else {
+            p = argv[2]; 
+            log2n = strtol(argv[3], NULL, 10);;
+        }
 
-    
-    /*
 
-    hashMessage(buffer, log2n); 
-    */
+        printf("Generating random big numbers...\n");
+        char * rand0 = generate_big_num(p);
+        unsigned int retTime = time(0) + 1;   // Get finishing time.
+        while (time(0) < retTime); 
+        char * rand1 = generate_big_num(p);
+        //printf("%c\n", rand0[0]);
+        //printf("%c\n", rand1[0]);
+
+        printf("Printing random big numbers out to rand_key0.txt and rand_key_1.txt...\n");
+        //char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
+        write_hex_string_to_char_array(rand0, "rand_key0.txt"); 
+        write_hex_string_to_char_array(rand1, "rand_key1.txt"); 
+
+        //char * tbscertificate = "../certificates/sample_tbscertificate.txt";
+        //char * keys_file = "rand_keys.txt";
+
+        //char * key0 = read_hex_file("rand_key0.txt"); 
+        //char * key1 = read_hex_file("rand_key1.txt"); 
+        //printf("%02hhX\n", key0[0]);
+        //printf("%02hhX\n", key1[0]);
+
+        free(rand0);
+        free(rand1); 
+        //free(key0);
+        //free(key1);
+    }
+    else if (strcmp(argv[1], "hashMessage") == 0) {
+        int log2n;
+        if (argc != 3) {
+            //go with the default values of the secp192k1 curve
+            log2n = 192; 
+        }
+        else {
+
+            log2n = strtol(argv[2], NULL, 10);;
+        }
+
+        FILE *fp;
+        long lSize;
+        char *buffer;
+
+        fp = fopen ( "../certificates/sample_tbscertificate.txt" , "rb" );
+        if( !fp ) perror("../certificates/sample_tbscertificate.txt"),exit(1);
+
+        fseek( fp , 0L , SEEK_END);
+        lSize = ftell( fp );
+        rewind( fp );
+
+        /* allocate memory for entire content */
+        buffer = calloc( 1, lSize+1 );
+        if( !buffer ) fclose(fp),fputs("memory alloc fails",stderr),exit(1);
+
+        /* copy the file into the buffer */
+        if( 1!=fread( buffer , lSize, 1 , fp) )
+          fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
+
+        /* do your work here, buffer is a string contains the whole text */
+
+        fclose(fp);
+        free(buffer);
+        //printf("%s\n", buffer);
+        hashMessage(buffer, log2n); 
     
-    
+    }   
 
 
     return 0;

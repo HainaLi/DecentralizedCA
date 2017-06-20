@@ -27,7 +27,7 @@ typedef struct protocolIO{
   uint8_t r[MAXN], s[MAXN];         // Certificate Signature Pair
   bool RisZero, SisZero;            // Flag signalling if 'r' or 's' is zero
   int proto;                        // CommandLine Argument: 1 -> Yao and 2 -> DualEx
-  ProtocolDesc pd;                  // Protocol Descriptor used for message exchange between Parties
+  int operation;                    // CommandLine Argument: 1 -> Generate Public Key and 2 -> Sign Certificate
 }protocolIO;
 
 void signCertificate(void* args);
