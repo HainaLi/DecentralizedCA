@@ -1,0 +1,379 @@
+#include "oblivECC.oh"
+
+// Extended Euclid's Algorithm for Multiplicative Inverse : A^-1 mod M
+// Refer to : https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm
+void mult_inverse(obig *out, obig A, obig M) obliv {
+  obig t, r, newt, newr, quotient, zero, tmp, remainder, intermediate; // 'r' and 'newr' are used for repetitive division to find GCD, while 't' and 'newt' simultaneously keep track of inverse. Finally, when 'r' has the GCD, 't' has the inverse of 'A'
+  obliv bool tsign = false;
+  obliv bool newtsign = false;
+
+  ~obliv(_en) {
+    obig_init(&t, MAXN + 1);
+    obig_init(&r, MAXN + 1);
+    obig_init(&newt, MAXN + 1);
+    obig_init(&newr, MAXN + 1);
+    obig_init(&quotient, MAXN + 1);
+    obig_init(&remainder, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&intermediate, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
+  }
+  
+  newt.data[0] = 1;
+  obig_copy(&r, M);
+  obig_copy(&newr, A);
+
+  obig *quotientref = &quotient;
+  obig *remainderref = &remainder;
+  obig *rref = &r;
+  obig *newrref = &newr;
+  obig *tref = &t;
+  obig *newtref = &newt;
+  obig *tmpref = &tmp;
+  obig *intermediateref = &intermediate;
+
+  int maxiter = MAXN * 8; //! why? - gcd takes log(n) iterations in worst case, which is the number of bits of n
+  
+  while (maxiter--) {
+    obliv if (obig_cmp(newr, zero) != 0) {
+      obig_div_mod(quotientref, remainderref, r, newr);
+
+      obig_copy(rref, newr);
+      obig_copy(newrref, remainder);
+
+      obig_copy(tmpref, newt);
+      obliv bool tmpsign = newtsign;
+
+      obig_mul(intermediateref, quotient, newt);
+
+      obliv if (tsign == tmpsign) {
+        obliv if (obig_cmp(intermediate, t) > 0) {
+          newtsign = !newtsign;
+          obig_sub(newtref, intermediate, t);
+        }
+        
+        obliv if (obig_cmp(intermediate, t) <= 0) {
+          obig_sub(newtref, t, intermediate);
+        }
+      }
+
+      obliv if (tsign != tmpsign) {
+        newtsign = !newtsign;
+        obig_add(newtref, t, intermediate);
+      }
+
+      obig_copy(tref, tmp);
+      tsign = tmpsign;
+    }
+  }
+  
+  obliv if (tsign == true) {
+    obig_sub(tref, M, t);
+  }
+
+  obig_copy(out, t);
+
+  ~obliv(_en) {
+     obig_free(&t);
+     obig_free(&r);
+     obig_free(&newr);
+     obig_free(&newt);
+     obig_free(&quotient);
+     obig_free(&remainder);
+     obig_free(&tmp);
+     obig_free(&zero);
+     obig_free(&intermediate);
+  }
+}
+
+/*
+lambda = (3x^2 + a)/2y
+resx = lambda^2 - 2x
+resy = lambda(x - resx) - y
+*/
+void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv {
+  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, x2, x2_mod, num, den, tmp, tt, tx, ty, final_x, final_y;
+
+  ~obliv(_en) {
+    obig_init(&lambda, 2 * MAXN);
+    obig_init(&lambda_mod, MAXN + 1);
+    obig_init(&lambda2, 2 * MAXN);
+    obig_init(&lambda2_mod, MAXN + 1);
+    obig_init(&x2, 2 * MAXN);
+    obig_init(&x2_mod, MAXN + 1);
+    obig_init(&num, MAXN + 1);
+    obig_init(&den, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&tt, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
+    obig_init(&final_x, MAXN + 1);
+    obig_init(&final_y, MAXN + 1);
+    obig_init(&tx, MAXN + 1);
+    obig_init(&ty, MAXN + 1);
+  }
+  
+  obig *numref = &num;
+  obig *denref = &den;
+  obig *final_xref = &final_x;
+  obig *final_yref = &final_y;
+  obig *txref = &tx;
+  obig *tyref = &ty;
+  obig *ttref =&tt;
+
+  obig_mul(&x2, px, px);
+  obig_div_mod(&tmp, &x2_mod, x2, p);
+
+  obig_add(&num, x2_mod, x2_mod);
+  obliv if (obig_cmp(num, p) >= 0) {
+    obig_sub(numref, num, p);
+  }
+  
+  obig_add(&num, num, x2_mod);
+  
+  obliv if (obig_cmp(num, p) >= 0) {
+    obig_sub(numref, num, p);
+  }
+  
+  obig_add(&num, num, a);
+  
+  obliv if (obig_cmp(num, p) >= 0) {
+    obig_sub(numref, num, p);
+  }
+
+  obig_add(&den, py, py);
+  
+  obliv if (obig_cmp(den, p) >= 0) {
+    obig_sub(denref, den, p);
+  }  
+
+  mult_inverse(&den, den, p);
+  obig_mul(&lambda, num, den);
+  obig_div_mod(&tmp, &lambda_mod, lambda, p);
+
+  obig_mul(&lambda2, lambda_mod, lambda_mod);
+  obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
+
+  obliv if (obig_cmp(lambda2_mod, px) >= 0) {
+    obig_sub(txref, lambda2_mod, px);
+  }
+  
+  obliv if (obig_cmp(lambda2_mod, px) < 0) {
+    obig_sub(txref, px, lambda2_mod);
+    obig_sub(txref, p, tx);
+  }
+  
+  obliv if (obig_cmp(tx, px) >= 0) {
+    obig_sub(final_xref, tx, px);
+  }
+  
+  obliv if (obig_cmp(tx, px) < 0) {
+    obig_sub(final_xref, px, tx);
+    obig_sub(final_xref, p, final_x);
+  }
+
+  obliv if (obig_cmp(px, final_x) >= 0) {
+    obig_sub(ttref, px, final_x);
+  }
+  
+  obliv if (obig_cmp(px, final_x) < 0) {
+    obig_sub(ttref, final_x, px);
+    obig_sub(ttref, p, tt);
+  }
+  
+  obig_mul(&lambda, lambda_mod, tt);
+  obig_div_mod(&tmp, &ty, lambda, p);
+  
+  obliv if (obig_cmp(ty, py) >= 0) {
+    obig_sub(final_yref, ty, py);
+  }
+  
+  obliv if (obig_cmp(ty, py) < 0) {
+    obig_sub(final_yref, py, ty);
+    obig_sub(final_yref, p, final_y);
+  }
+
+  obig_copy(resx, final_x);
+  obig_copy(resy, final_y);
+
+  ~obliv(_en) {
+    obig_free(&x2);
+    obig_free(&x2_mod);
+    obig_free(&lambda);
+    obig_free(&lambda_mod);
+    obig_free(&lambda2);
+    obig_free(&lambda2_mod);
+    obig_free(&num);
+    obig_free(&den);
+    obig_free(&tmp);
+    obig_free(&tt);
+    obig_free(&zero);
+    obig_free(&final_x);
+    obig_free(&final_y);
+    obig_free(&tx);
+    obig_free(&ty);
+  }
+}
+
+/*
+lambda = (yq - yp)/(xq - xp)
+resx = lambda^2 - xp - xq
+resy = lambda(xp - resx) - yp
+*/
+void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv {
+  obig zero, lambda, lambda_mod, lambda2, lambda2_mod, num, den, tt, tx, ty, tmp, final_x, final_y;
+
+  ~obliv(_en) {
+    obig_init(&lambda, 2 * MAXN);
+    obig_init(&lambda_mod, MAXN + 1);
+    obig_init(&lambda2, 2 * MAXN);
+    obig_init(&lambda2_mod, MAXN + 1);
+    obig_init(&num, MAXN + 1);
+    obig_init(&den, MAXN + 1);
+    obig_init(&tt, MAXN + 1);
+    obig_init(&tmp, MAXN + 1);
+    obig_init(&zero, MAXN + 1);
+    obig_init(&final_x, MAXN + 1);
+    obig_init(&final_y, MAXN + 1);
+    obig_init(&tx, MAXN + 1);
+    obig_init(&ty, MAXN + 1);
+  }
+
+  obig *numref = &num;
+  obig *denref = &den;
+  obig *final_xref = &final_x;
+  obig *final_yref = &final_y;
+  obig *txref = &tx;
+  obig *tyref = &ty;
+  obig *ttref =&tt;
+
+  obliv if (obig_cmp(qy, py) >= 0) {
+    obig_sub(numref, qy, py);
+  }
+  
+  obliv if (obig_cmp(qy, py) < 0) {
+    obig_sub(numref, py, qy);
+    obig_sub(numref, p, num);
+  }
+
+  obliv if (obig_cmp(qx, px) >= 0) {
+    obig_sub(denref, qx, px);
+  }
+  
+  obliv if (obig_cmp(qx, px) < 0) {
+    obig_sub(denref, px, qx);
+    obig_sub(denref, p, den);
+  }
+
+  mult_inverse(&den, den, p);
+  obig_mul(&lambda, num, den);
+  obig_div_mod(&tmp, &lambda_mod, lambda, p);
+
+  obig_mul(&lambda2, lambda_mod, lambda_mod);
+  obig_div_mod(&tmp, &lambda2_mod, lambda2, p);
+  
+  obliv if (obig_cmp(lambda2_mod, px) >= 0) {
+    obig_sub(txref, lambda2_mod, px);
+  }
+  
+  obliv if (obig_cmp(lambda2_mod, px) < 0) {
+    obig_sub(txref, px, lambda2_mod);
+    obig_sub(txref, p, tx);
+  }
+
+  obliv if (obig_cmp(tx, qx) >= 0) {
+    obig_sub(final_xref, tx, qx);
+  }
+  
+  obliv if (obig_cmp(tx, qx) < 0) {
+    obig_sub(final_xref, qx, tx);
+    obig_sub(final_xref, p, final_x);
+  }
+
+  obliv if (obig_cmp(px, final_x) >= 0) {
+    obig_sub(ttref, px, final_x);
+  }
+  
+  obliv if (obig_cmp(px, final_x) < 0) {
+    obig_sub(ttref, final_x, px);
+    obig_sub(ttref, p, tt);
+  }
+  
+  obig_mul(&lambda, lambda_mod, tt);
+  obig_div_mod(&tmp, &ty, lambda, p);
+  
+  obliv if (obig_cmp(ty, py) >= 0) {
+    obig_sub(final_yref, ty, py);
+  }
+  
+  obliv if (obig_cmp(ty, py) < 0) {
+    obig_sub(final_yref, py, ty);
+    obig_sub(final_yref, p, final_y);
+  }
+
+  obig_copy(resx, final_x);
+  obig_copy(resy, final_y);
+
+  ~obliv(_en) {
+    obig_free(&lambda);
+    obig_free(&lambda_mod);
+    obig_free(&lambda2);
+    obig_free(&lambda2_mod);
+    obig_free(&num);
+    obig_free(&den);
+    obig_free(&tt);
+    obig_free(&tmp);
+    obig_free(&zero);
+    obig_free(&final_x);
+    obig_free(&final_y);
+    obig_free(&tx);
+    obig_free(&ty);
+  }
+}
+
+// elliptic curve point multiplication
+void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv {
+  obig Nx, Ny, Qx, Qy;
+  obliv bool initial = true;
+  obliv uint8_t t;
+
+  ~obliv(_en) {
+    obig_init(&Nx, MAXN);
+    obig_init(&Ny, MAXN);
+    obig_init(&Qx, MAXN);
+    obig_init(&Qy, MAXN);
+  }
+  
+  obig_copy(&Nx, gx);
+  obig_copy(&Ny, gy);
+
+  obig *Qxref = &Qx;
+  obig *Qyref = &Qy;
+  obig *Nxref = &Nx;
+  obig *Nyref = &Ny;
+  
+  for (int ii = 0; ii < d.digits; ii++) {
+    for (int j = 0; j < 8; j++) {
+      t = d.data[ii] & (1 << j);
+      obliv if (t > 0) {
+        obliv if (initial == false) {
+          pointAdd(Qxref, Qyref, Qx, Qy, Nx, Ny, p);
+        }
+        obliv if (initial == true) {
+          initial = false;
+          obig_copy(Qxref, Nx);
+          obig_copy(Qyref, Ny);
+        }
+      }
+      pointDouble(Nxref, Nyref, Nx, Ny, a, p);
+    }
+  }
+  obig_copy(resx, Qx);
+  obig_copy(resy, Qy);
+
+  ~obliv(_en){
+    obig_free(&Nx);
+    obig_free(&Ny);
+    obig_free(&Qx);
+    obig_free(&Qy);
+  }
+}

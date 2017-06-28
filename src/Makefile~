@@ -1,0 +1,10 @@
+testName=oblivCA
+
+CILPATH=/home/ubuntu/Desktop/obliv-c
+ACKPATH=/home/ubuntu/Desktop/absentminded-crypto-kit
+REMOTE_HOST=localhost
+CFLAGS=-DREMOTE_HOST=$(REMOTE_HOST) -O3
+./a.out: $(testName).oc $(testName).c util.c oblivECC.oc $(ACKPATH)/build/lib/liback.a $(CILPATH)/_build/libobliv.a 
+	$(CILPATH)/bin/oblivcc $(CFLAGS) -I . -I $(ACKPATH)/src/ $(testName).oc $(testName).c util.c oblivECC.oc $(ACKPATH)/src/obig.oc
+clean:
+	rm -f a.out

@@ -1,0 +1,17 @@
+#ifndef OBLIV_ECC_OH
+#define OBLIV_ECC_OH
+
+#include <obliv.oh>
+#include <obig.oh>
+
+#define MAXN 24
+
+void pointDouble(obig* resx, obig* resy, obig px, obig py, obig a, obig p) obliv;
+
+void pointAdd(obig* resx, obig* resy, obig px, obig py, obig qx, obig qy, obig p) obliv;
+
+void curveMult(obig* resx, obig* resy, obig gx, obig gy, obig d, obig a, obig p) obliv;
+
+void mult_inverse(obig *out, obig A, obig M) obliv;
+
+#endif

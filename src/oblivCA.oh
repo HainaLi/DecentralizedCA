@@ -8,22 +8,22 @@
 #include <assert.h>
 
 #define MAXN 24
-#define E_LENGTH 24
+#define Z_LENGTH 24
 
 #define printGateCount() fprintf(stderr, "Yao gate count: %llu\n", yaoGateCount())
 
 typedef struct protocolIO{
-  uint8_t private_key_share1[MAXN]; // Private Key Share of Party 1
-  uint8_t private_key_share2[MAXN]; // Private Key Share of Party 2
-  uint8_t k1[MAXN];                 // Random Number Share of Party 1
-  uint8_t k2[MAXN];                 // Random Number Share of Party 1
+  uint8_t pk_A[MAXN]; // Private Key Share of Party 1
+  uint8_t pk_B[MAXN]; // Private Key Share of Party 2
+  uint8_t k_A[MAXN];                 // Random Number Share of Party 1
+  uint8_t k_B[MAXN];                 // Random Number Share of Party 1
   uint8_t p[MAXN];                  // Prime Number defining the Finite Field
   uint8_t a[MAXN];                  // Coefficient of Elliptic Curve
   uint8_t g_x[MAXN], g_y[MAXN];     // Elliptic Curve Base Point
   uint8_t Q_x[MAXN], Q_y[MAXN];     // Public Key pair
   uint8_t n[MAXN];                  // Order of Base Point
-  uint8_t e1[E_LENGTH];             // Hash of tbsCert Message from Party 1
-  uint8_t e2[E_LENGTH];             // Hash of tbsCert Message from Party 2
+  uint8_t z_A[Z_LENGTH];             // Hash of tbsCert Message from Party 1
+  uint8_t z_B[Z_LENGTH];             // Hash of tbsCert Message from Party 2
   uint8_t r[MAXN], s[MAXN];         // Certificate Signature Pair
   bool RisZero, SisZero;            // Flag signalling if 'r' or 's' is zero
   int proto;                        // CommandLine Argument: 1 -> Yao and 2 -> DualEx

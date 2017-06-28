@@ -1,8 +1,0 @@
-#Install dependencies
-sudo apt-get install python-dev libgmp3-dev
-
-#install this modified version of fastecdsa
-python setup.py install
-
-#run our curve arithmetic program
-python ecdsa_check.py

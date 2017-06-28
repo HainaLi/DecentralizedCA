@@ -97,11 +97,15 @@ char* stringToBinary(char* s) {
 
 void print_hash(unsigned char hash[], int length)
 {
-   int idx;
-   for (idx=0; idx < length; idx++)
-      //printf("%02x",hash[idx]);
-    printf("x%02x",hash[idx]);
-   printf("\n");
+    int idx;
+    printf("{");
+    for (idx=0; idx < length; idx++) {
+        printf("0x%02x",hash[idx]);
+        if (idx != length-1) {
+            printf(",");            
+        }
+    }
+    printf("}\n");
 }
 
 //outputs the hashed value
@@ -121,14 +125,12 @@ char * hashMessage(char * message, int log_2_n) {
     char * bit_string_message = stringToBinary(message);
 
     //page 31 Step 3. 
-    //H = Hash(M')
-    //unsigned char hash[SHA256_BLOCK_SIZE];
+    //H = Hash(M') M' is the bitstring
     unsigned char * hash = malloc(SHA256_BLOCK_SIZE);
     SHA256_CTX ctx;
     sha256_init(&ctx);
     sha256_update(&ctx,bit_string_message,strlen(bit_string_message));
     sha256_final(&ctx,hash);
-    //print_hash(hash);
     
     int hash_len = strlen(hash);
 
@@ -166,7 +168,7 @@ void prepend(char* s, const char* t)
 }
 
 
-char * generate_big_num(char * p) {
+void generate_big_num(char * p) {
     mpz_t rand_Num;
     mpz_init(rand_Num);
     unsigned long int i;
@@ -185,7 +187,6 @@ char * generate_big_num(char * p) {
     //generate a big number between 0 and p-2
 
     //Function: void mpz_urandomm (mpz_t rop, gmp_randstate_t state, const mpz_t n)
-    //Generate a uniform random integer in the range 0 to n-1, inclusive.
 
     mpz_t p_mpz_t; 
     mpz_init(p_mpz_t);
@@ -193,22 +194,26 @@ char * generate_big_num(char * p) {
 
     //need to submit p - 1, since we want a number between 0 and p-2, inclusive
     mpz_sub_ui(p_mpz_t, p_mpz_t, 1);
-    mpz_urandomm(rand_Num,r_state,p_mpz_t);
+    mpz_urandomm(rand_Num,r_state,p_mpz_t); //generates a random integer between 0 and p_mpz_t-1, inclusive
     //gmp_printf("%Zx\n", rand_Num);
     char * rand_char = mpz_get_str(NULL, 16, rand_Num);
     int rand_length = strlen(rand_char);
-    //printf("%i\n", strlen(rand_char));
-    char *final = malloc(48);  
-    strcpy(final, rand_char);
-    for(int i=rand_length;i<=48;i++){
-        strcpy(final, final);
-        prepend(final, "0");
+    printf("{");
+    for(int i=0;i<rand_length;i++){
+        if (i % 2 == 0) {
+            printf("0x");
+        }
+        printf("%c", rand_char[i]);
+        if (i % 2 == 1 && i != rand_length-1) {
+            printf(",");
+        }
     }
+    printf("}\n");
+
     free(rand_char);
     gmp_randclear(r_state);
     mpz_clear(rand_Num);  
-    mpz_clear(p_mpz_t);
-    return final; 
+    mpz_clear(p_mpz_t); 
 
 }
 
@@ -255,6 +260,7 @@ int main(int argc,char *argv[]) {
 
     if (argc < 2) {
         printf("./setup.out generateBigNums p log2n \n or \n ./setup.out hashMessage log2n \n Or omit the p or log2n to use the default secp192k1 curve. \n The log2n is the number of bits of your curve. \n For example, for the default secp192k1 curve, \n log2n=192 \n");
+        exit(0);
     }
 
 
@@ -275,30 +281,11 @@ int main(int argc,char *argv[]) {
 
 
         printf("Generating random big numbers...\n");
-        char * rand0 = generate_big_num(p);
+        generate_big_num(p);
         unsigned int retTime = time(0) + 1;   // Get finishing time.
         while (time(0) < retTime); 
-        char * rand1 = generate_big_num(p);
-        //printf("%c\n", rand0[0]);
-        //printf("%c\n", rand1[0]);
+        generate_big_num(p);
 
-        printf("Printing random big numbers out to rand_key0.txt and rand_key_1.txt...\n");
-        //char * param_string_n = "FFFFFFFFFFFFFFFFFFFFFFFE26F2FC170F69466A74DEFD8D";
-        write_hex_string_to_char_array(rand0, "rand_key0.txt"); 
-        write_hex_string_to_char_array(rand1, "rand_key1.txt"); 
-
-        //char * tbscertificate = "../certificates/sample_tbscertificate.txt";
-        //char * keys_file = "rand_keys.txt";
-
-        //char * key0 = read_hex_file("rand_key0.txt"); 
-        //char * key1 = read_hex_file("rand_key1.txt"); 
-        //printf("%02hhX\n", key0[0]);
-        //printf("%02hhX\n", key1[0]);
-
-        free(rand0);
-        free(rand1); 
-        //free(key0);
-        //free(key1);
     }
     else if (strcmp(argv[1], "hashMessage") == 0) {
         int log2n;
