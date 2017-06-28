@@ -16,14 +16,15 @@ For now, the code uses secp192k1 curve, and this could be easily extended to any
 ---
 
 The current oblivCA.c contains hard coded values for the sec192k1 curve, pks A and B, ks A and B, and the hash of the to-be-signed certificate. 
+
 To sign a different string/certificate, or to generate new values for k and pk:
 
-./setup.out generateBigNums p log2n 
- or 
-./setup.out hashMessage log2n 
-Or omit the p or log2n to use the default secp192k1 curve. 
-The log2n is the number of bits of your curve. 
-For example, for the default secp192k1 curve, log2n=192
+./setup.out generateBigNums p log2n  
+ or   
+./setup.out hashMessage log2n   
+Or omit the p or log2n to use the default secp192k1 curve.   
+The log2n is the number of bits of your curve.   
+For example, for the default secp192k1 curve, log2n=192  
 
-The generated random big numbers and hashed message will be printed to console, where you can copy/paste into oblivCA.c. 
-Note: a.out and setup.out are compiled as separately because libgmp does not compile with oblivC. 
+The generated random big numbers and hashed message will be printed to console, where you can copy/paste into oblivCA.c.   
+Note: a.out and setup.out are compiled as separately because libgmp does not compile with oblivC.   
