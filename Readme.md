@@ -1,6 +1,7 @@
 Prerequisites:
  - Obliv-C (https://github.com/samee/obliv-c)
  - Absentminded Crypto Kit (https://bitbucket.org/jackdoerner/absentminded-crypto-kit/src)
+ - MP Bignum Library (https://gmplib.org/)
 
 To run the code:
 - Go to DecentralizedCA/src
