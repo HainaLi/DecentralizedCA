@@ -26,21 +26,23 @@ To run the code:
 - operation defines the ECDSA operation to bed executed - Public Key Generation or Certificate Signing. The options of operation are 'genPubKey' and 'signCert'
 - Warning: Both the parties should use the exact same values of proto and operation, else the code will fail!
 
-For now, the code uses secp192k1 curve, and this could be easily extended to any standard Elliptic Curve. The code will output the ECDSA public key pair (Q_x, Q_y) in case of 'genPubKey', and ECDSA signature pair (r,s) in case of 'signCert'.
+For now, the code uses secp192k1 curve, and this could be easily extended to any standard Elliptic Curve. The code will output the ECDSA public key pair (_Q<sub>x</sub>_, _Q<sub>y</sub>_) in case of 'genPubKey', and ECDSA signature pair (_r_, _s_) in case of 'signCert'.
 
 ---
 
-The current oblivCA.c contains hard coded values for the sec192k1 curve, pks A and B, ks A and B, and the hash of the to-be-signed certificate. 
+The current `oblivCA.c` contains hard coded values for the sec192k1 curve, pks _A_ and _B_, ks _A_ and _B_, and the hash of the to-be-signed certificate. 
 
-To sign a different string/certificate, or to generate new values for k and pk:
+To sign a different string/certificate, or to generate new values for _k_ and _pk_:
 
-   ./setup.out generateBigNums p log2n  
- or   
-   ./setup.out hashMessage log2n   
+    ./setup.out generateBigNums [p] [log2n]  
+ or
+ 
+    ./setup.out hashMessage [log2n]   
 
-Or omit the p or log2n to use the default secp192k1 curve.   
-The log2n is the number of bits of your curve.   
-For example, for the default secp192k1 curve, log2n=192  
+Or omit the _p_ or _log2n_ to use the default secp192k1 curve.   
 
-The generated random big numbers and hashed message will be printed to console, where you can copy/paste into oblivCA.c.   
+The _log2n_ is the number of bits of your curve. For example, for the default secp192k1 curve, _log2n_ = 192.  
+
+The generated random big numbers and hashed message will be printed to console, where you can copy/paste into oblivCA.c.
+
 Note: a.out and setup.out are compiled as separately because libgmp does not compile with oblivC.   
